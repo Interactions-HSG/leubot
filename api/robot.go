@@ -6,10 +6,22 @@ import (
 	"net/http"
 )
 
-// RobotCommand is a struct for the command
+// RobotCommand is a struct for each command
 type RobotCommand struct {
 	Token string `json:"token"`
 	Value uint16 `json:"value"`
+}
+
+// PostureCommand is a struct for a posture
+type PostureCommand struct {
+	Token         string `json:"token"`
+	Base          uint16 `json:"base"`
+	Shoulder      uint16 `json:"shoulder"`
+	Elbow         uint16 `json:"elbow"`
+	WristAngle    uint16 `json:"wristAngle"`
+	WristRotation uint16 `json:"wristRotation"`
+	Gripper       uint16 `json:"gripper"`
+	Delta         uint8  `json:"delta"`
 }
 
 // PutBase processes the request for Base
@@ -240,6 +252,41 @@ func PutGripper(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// PutPosture sets all the joints at once
+func PutPosture(w http.ResponseWriter, r *http.Request) {
+	// parse the request body
+	decoder := json.NewDecoder(r.Body)
+	var posCom PostureCommand
+	err := decoder.Decode(&posCom)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest) // 400
+		return
+	}
+	// bypass the request to HandlerChannel
+	HandlerChannel <- HandlerMessage{
+		Type:  TypePutPosture,
+		Value: []interface{}{posCom},
+	}
+	// receive a message from the other end of HandlerChannel
+	msg, ok := <-HandlerChannel
+	// check the channel status
+	if !ok {
+		w.WriteHeader(http.StatusInternalServerError) // 500
+		return
+	}
+	// respond with the result
+	switch msg.Type {
+	case TypeActionPerformed: // the requested action is performed
+		log.Println("[HandlerChannel] Posture")
+		w.WriteHeader(http.StatusAccepted) // 202
+	case TypeInvalidToken: // the invalid token provided
+		log.Printf("[HandlerChannel] InvalidToken: %v", posCom.Token)
+		w.WriteHeader(http.StatusUnauthorized) // 401
+	default: // something went wrong
+		w.WriteHeader(http.StatusInternalServerError) // 500
+	}
+}
+
 // PutReset processes the request to reset
 func PutReset(w http.ResponseWriter, r *http.Request) {
 	// parse the request body
@@ -273,5 +320,4 @@ func PutReset(w http.ResponseWriter, r *http.Request) {
 	default: // something went wrong
 		w.WriteHeader(http.StatusInternalServerError) // 500
 	}
-
 }

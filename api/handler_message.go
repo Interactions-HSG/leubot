@@ -34,6 +34,8 @@ const (
 	TypePutWristRotation
 	// TypePutGripper is to change Gripper
 	TypePutGripper
+	// TypePutPosture is to set a posture
+	TypePutPosture
 	// TypePutReset is to reset Leubot
 	TypePutReset
 	// TypeActionPerformed says the action was performed

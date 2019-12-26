@@ -92,6 +92,12 @@ var routes = Routes{
 		PutGripper,
 	},
 	Route{
+		"PutPosture",
+		strings.ToUpper("Put"),
+		APIBaseURL + "/posture",
+		PutPosture,
+	},
+	Route{
 		"PutReset",
 		strings.ToUpper("Put"),
 		APIBaseURL + "/reset",

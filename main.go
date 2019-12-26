@@ -27,11 +27,14 @@ import (
 // Environmental variables
 var (
 	// Current Version
-	version = "1.1.0"
+	version = "1.1.1"
 
 	// app
 	app = kingpin.
 		New("leubot", "Provide a Web API for the PhantomX AX-12 Reactor Robot Arm.")
+
+	// delta for the leubot
+	defaultDelta = uint8(128)
 
 	// flags
 	mastertoken = app.
@@ -85,8 +88,8 @@ type RobotPose struct {
 }
 
 // BuildArmLinkPacket creates a new ArmLinkPacket
-func (rp *RobotPose) BuildArmLinkPacket() *armlink.ArmLinkPacket {
-	return armlink.NewArmLinkPacket(rp.Base, rp.Shoulder, rp.Elbow, rp.WristAngle, rp.WristRotation, rp.Gripper, 128, 0, 0)
+func (rp *RobotPose) BuildArmLinkPacket(delta uint8) *armlink.ArmLinkPacket {
+	return armlink.NewArmLinkPacket(rp.Base, rp.Shoulder, rp.Elbow, rp.WristAngle, rp.WristRotation, rp.Gripper, delta, 0, 0)
 }
 
 // String returns a string rep for the rp
@@ -211,7 +214,7 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 				// reset CurrentRobotPose
 				controller.ResetPose()
 				// sync with Leubot
-				alp = controller.CurrentRobotPose.BuildArmLinkPacket()
+				alp = controller.CurrentRobotPose.BuildArmLinkPacket(defaultDelta)
 				controller.ArmLinkSerial.Send(alp.Bytes())
 				log.Printf("[ArmLinkPacket] %v", alp.String())
 				// post to Slack - stop
@@ -297,6 +300,14 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 					Type: api.TypeUserDeleted,
 				}
 			case api.TypePutBase:
+				// check if there's a user
+				if controller.CurrentUser.ToUserInfo() == (api.UserInfo{}) {
+					// don't allow if not activated
+					hmc <- api.HandlerMessage{
+						Type: api.TypeUserNotFound,
+					}
+					break
+				}
 				// receive the robotCommand
 				robotCommand, ok := msg.Value[0].(api.RobotCommand)
 				if !ok {
@@ -326,7 +337,7 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 				// set the value to CurrentRobotPose
 				controller.CurrentRobotPose.Base = robotCommand.Value
 				// perform the move
-				alp := controller.CurrentRobotPose.BuildArmLinkPacket()
+				alp := controller.CurrentRobotPose.BuildArmLinkPacket(defaultDelta)
 				controller.ArmLinkSerial.Send(alp.Bytes())
 				log.Printf("[ArmLinkPacket] %v", alp.String())
 
@@ -334,6 +345,14 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 					Type: api.TypeActionPerformed,
 				}
 			case api.TypePutShoulder:
+				// check if there's a user
+				if controller.CurrentUser.ToUserInfo() == (api.UserInfo{}) {
+					// don't allow if not activated
+					hmc <- api.HandlerMessage{
+						Type: api.TypeUserNotFound,
+					}
+					break
+				}
 				// receive the robotCommand
 				robotCommand, ok := msg.Value[0].(api.RobotCommand)
 				if !ok {
@@ -363,7 +382,7 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 				// set the value to CurrentRobotPose
 				controller.CurrentRobotPose.Shoulder = robotCommand.Value
 				// perform the move
-				alp := controller.CurrentRobotPose.BuildArmLinkPacket()
+				alp := controller.CurrentRobotPose.BuildArmLinkPacket(defaultDelta)
 				controller.ArmLinkSerial.Send(alp.Bytes())
 				log.Printf("[ArmLinkPacket] %v", alp.String())
 
@@ -371,6 +390,14 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 					Type: api.TypeActionPerformed,
 				}
 			case api.TypePutElbow:
+				// check if there's a user
+				if controller.CurrentUser.ToUserInfo() == (api.UserInfo{}) {
+					// don't allow if not activated
+					hmc <- api.HandlerMessage{
+						Type: api.TypeUserNotFound,
+					}
+					break
+				}
 				// receive the robotCommand
 				robotCommand, ok := msg.Value[0].(api.RobotCommand)
 				if !ok {
@@ -400,7 +427,7 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 				// set the value to CurrentRobotPose
 				controller.CurrentRobotPose.Elbow = robotCommand.Value
 				// perform the move
-				alp := controller.CurrentRobotPose.BuildArmLinkPacket()
+				alp := controller.CurrentRobotPose.BuildArmLinkPacket(defaultDelta)
 				controller.ArmLinkSerial.Send(alp.Bytes())
 				log.Printf("[ArmLinkPacket] %v", alp.String())
 
@@ -408,6 +435,14 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 					Type: api.TypeActionPerformed,
 				}
 			case api.TypePutWristAngle:
+				// check if there's a user
+				if controller.CurrentUser.ToUserInfo() == (api.UserInfo{}) {
+					// don't allow if not activated
+					hmc <- api.HandlerMessage{
+						Type: api.TypeUserNotFound,
+					}
+					break
+				}
 				// receive the robotCommand
 				robotCommand, ok := msg.Value[0].(api.RobotCommand)
 				if !ok {
@@ -437,7 +472,7 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 				// set the value to CurrentRobotPose
 				controller.CurrentRobotPose.WristAngle = robotCommand.Value
 				// perform the move
-				alp := controller.CurrentRobotPose.BuildArmLinkPacket()
+				alp := controller.CurrentRobotPose.BuildArmLinkPacket(defaultDelta)
 				controller.ArmLinkSerial.Send(alp.Bytes())
 				log.Printf("[ArmLinkPacket] %v", alp.String())
 
@@ -445,6 +480,14 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 					Type: api.TypeActionPerformed,
 				}
 			case api.TypePutWristRotation:
+				// check if there's a user
+				if controller.CurrentUser.ToUserInfo() == (api.UserInfo{}) {
+					// don't allow if not activated
+					hmc <- api.HandlerMessage{
+						Type: api.TypeUserNotFound,
+					}
+					break
+				}
 				// receive the robotCommand
 				robotCommand, ok := msg.Value[0].(api.RobotCommand)
 				if !ok {
@@ -474,7 +517,7 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 				// set the value to CurrentRobotPose
 				controller.CurrentRobotPose.WristRotation = robotCommand.Value
 				// perform the move
-				alp := controller.CurrentRobotPose.BuildArmLinkPacket()
+				alp := controller.CurrentRobotPose.BuildArmLinkPacket(defaultDelta)
 				controller.ArmLinkSerial.Send(alp.Bytes())
 				log.Printf("[ArmLinkPacket] %v", alp.String())
 
@@ -482,6 +525,14 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 					Type: api.TypeActionPerformed,
 				}
 			case api.TypePutGripper:
+				// check if there's a user
+				if controller.CurrentUser.ToUserInfo() == (api.UserInfo{}) {
+					// don't allow if not activated
+					hmc <- api.HandlerMessage{
+						Type: api.TypeUserNotFound,
+					}
+					break
+				}
 				// receive the robotCommand
 				robotCommand, ok := msg.Value[0].(api.RobotCommand)
 				if !ok {
@@ -511,7 +562,64 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 				// set the value to CurrentRobotPose
 				controller.CurrentRobotPose.Gripper = robotCommand.Value
 				// perform the move
-				alp := controller.CurrentRobotPose.BuildArmLinkPacket()
+				alp := controller.CurrentRobotPose.BuildArmLinkPacket(defaultDelta)
+				controller.ArmLinkSerial.Send(alp.Bytes())
+				log.Printf("[ArmLinkPacket] %v", alp.String())
+
+				hmc <- api.HandlerMessage{
+					Type: api.TypeActionPerformed,
+				}
+			case api.TypePutPosture:
+				// check if there's a user
+				if controller.CurrentUser.ToUserInfo() == (api.UserInfo{}) {
+					// don't allow if not activated
+					hmc <- api.HandlerMessage{
+						Type: api.TypeUserNotFound,
+					}
+					break
+				}
+				// receive the posCom
+				posCom, ok := msg.Value[0].(api.PostureCommand)
+				if !ok {
+					hmc <- api.HandlerMessage{
+						Type: api.TypeSomethingWentWrong,
+					}
+					break
+				}
+				// check if the token is valid
+				if posCom.Token != controller.CurrentUser.Token && posCom.Token != *mastertoken {
+					hmc <- api.HandlerMessage{
+						Type: api.TypeInvalidToken,
+					}
+					break
+				}
+				// ack the timer
+				if *userTimeout != 0 {
+					controller.UserActChannel <- true
+				}
+				// check the value is valid
+				log.Printf("[Posture] %v", posCom)
+				if posCom.Base < 0 || 1023 < posCom.Base ||
+					posCom.Shoulder < 205 || 810 < posCom.Shoulder ||
+					posCom.Elbow < 210 || 900 < posCom.Elbow ||
+					posCom.WristAngle < 200 || 830 < posCom.WristAngle ||
+					posCom.WristRotation < 0 || 1023 < posCom.WristRotation ||
+					posCom.Gripper < 0 || 512 < posCom.Gripper ||
+					posCom.Delta < 0 || 254 < posCom.Delta {
+					hmc <- api.HandlerMessage{
+						Type: api.TypeInvalidCommand,
+					}
+					break
+				}
+				// set the value to CurrentRobotPose
+				controller.CurrentRobotPose.Base = posCom.Base
+				controller.CurrentRobotPose.Shoulder = posCom.Shoulder
+				controller.CurrentRobotPose.Elbow = posCom.Elbow
+				controller.CurrentRobotPose.WristAngle = posCom.WristAngle
+				controller.CurrentRobotPose.WristRotation = posCom.WristRotation
+				controller.CurrentRobotPose.Gripper = posCom.Gripper
+				// perform the move
+				alp := controller.CurrentRobotPose.BuildArmLinkPacket(posCom.Delta)
 				controller.ArmLinkSerial.Send(alp.Bytes())
 				log.Printf("[ArmLinkPacket] %v", alp.String())
 
@@ -545,7 +653,7 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 				// reset CurrentRobotPose
 				controller.ResetPose()
 				// sync with Leubot
-				alp = controller.CurrentRobotPose.BuildArmLinkPacket()
+				alp = controller.CurrentRobotPose.BuildArmLinkPacket(defaultDelta)
 				controller.ArmLinkSerial.Send(alp.Bytes())
 				log.Printf("[ArmLinkPacket] %v", alp.String())
 

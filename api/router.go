@@ -56,6 +56,12 @@ var routes = Routes{
 		RemoveUser,
 	},
 	Route{
+		"GetBase",
+		strings.ToUpper("Get"),
+		APIBaseURL + "/base",
+		GetState,
+	},
+	Route{
 		"PutBase",
 		strings.ToUpper("Put"),
 		APIBaseURL + "/base",

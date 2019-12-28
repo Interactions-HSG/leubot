@@ -312,7 +312,7 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 			case api.TypeGetPosture:
 				hmc <- api.HandlerMessage{
 					Type:  api.TypeCurrentPosture,
-					Value: []interface{}{controller.CurrentRobotPose},
+					Value: []interface{}{*controller.CurrentRobotPose},
 				}
 			case api.TypePutBase:
 				// check if there's a user

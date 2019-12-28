@@ -92,6 +92,12 @@ var routes = Routes{
 		GetState,
 	},
 	Route{
+		"GetPosture",
+		strings.ToUpper("Get"),
+		APIBaseURL + "/posture",
+		GetPosture,
+	},
+	Route{
 		"PutBase",
 		strings.ToUpper("Put"),
 		APIBaseURL + "/base",

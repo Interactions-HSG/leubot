@@ -22,6 +22,34 @@ const (
 	TypeGetUser
 	// TypeCurrentUser has the current user info
 	TypeCurrentUser
+	// TypeGetBase is to get Base
+	TypeGetBase
+	// TypeGetShoulder is to get Shoulder
+	TypeGetShoulder
+	// TypeGetElbow is to get Elbow
+	TypeGetElbow
+	// TypeGetWristAngle is to get WristAngle
+	TypeGetWristAngle
+	// TypeGetWristRotation is to get WristRotation
+	TypeGetWristRotation
+	// TypeGetGripper is to get Gripper
+	TypeGetGripper
+	// TypeGetPosture is to get a posture
+	TypeGetPosture
+	// TypeCurrentBase returns Base
+	TypeCurrentBase
+	// TypeCurrentShoulder returns Shoulder
+	TypeCurrentShoulder
+	// TypeCurrentElbow returns Elbow
+	TypeCurrentElbow
+	// TypeCurrentWristAngle returns WristAngle
+	TypeCurrentWristAngle
+	// TypeCurrentWristRotation returns WristRotation
+	TypeCurrentWristRotation
+	// TypeCurrentGripper returns Gripper
+	TypeCurrentGripper
+	// TypeCurrentPosture returns Posture
+	TypeCurrentPosture
 	// TypePutBase is to change Base
 	TypePutBase
 	// TypePutShoulder is to change Shoulder

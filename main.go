@@ -77,30 +77,10 @@ var (
 			Int()
 )
 
-// RobotPose stores the rotations of each joint
-type RobotPose struct {
-	Base          uint16
-	Shoulder      uint16
-	Elbow         uint16
-	WristAngle    uint16
-	WristRotation uint16
-	Gripper       uint16
-}
-
-// BuildArmLinkPacket creates a new ArmLinkPacket
-func (rp *RobotPose) BuildArmLinkPacket(delta uint8) *armlink.ArmLinkPacket {
-	return armlink.NewArmLinkPacket(rp.Base, rp.Shoulder, rp.Elbow, rp.WristAngle, rp.WristRotation, rp.Gripper, delta, 0, 0)
-}
-
-// String returns a string rep for the rp
-func (rp *RobotPose) String() string {
-	return fmt.Sprintf("Base: %v, Shoulder: %v, Elbow: %v, WristAngle: %v, WristRotation: %v, Gripper: %v", rp.Base, rp.Shoulder, rp.Elbow, rp.WristAngle, rp.WristRotation, rp.Gripper)
-}
-
 // Controller is the main thread for this API provider
 type Controller struct {
 	ArmLinkSerial     *armlink.ArmLinkSerial
-	CurrentRobotPose  *RobotPose
+	CurrentRobotPose  *api.RobotPose
 	CurrentUser       *api.User
 	HandlerChannel    chan api.HandlerMessage
 	LastArmLinkPacket *armlink.ArmLinkPacket
@@ -111,7 +91,7 @@ type Controller struct {
 
 // ResetPose resets the RobotPose to its home position
 func (controller *Controller) ResetPose() {
-	controller.CurrentRobotPose = &RobotPose{
+	controller.CurrentRobotPose = &api.RobotPose{
 		Base:          512,
 		Shoulder:      400,
 		Elbow:         400,
@@ -136,7 +116,7 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 	hmc := make(chan api.HandlerMessage)
 	controller := Controller{
 		ArmLinkSerial:     als,
-		CurrentRobotPose:  &RobotPose{},
+		CurrentRobotPose:  &api.RobotPose{},
 		CurrentUser:       &api.User{},
 		HandlerChannel:    hmc,
 		LastArmLinkPacket: &armlink.ArmLinkPacket{},
@@ -298,6 +278,41 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 
 				hmc <- api.HandlerMessage{
 					Type: api.TypeUserDeleted,
+				}
+			case api.TypeGetBase:
+				hmc <- api.HandlerMessage{
+					Type:  api.TypeCurrentBase,
+					Value: []interface{}{controller.CurrentRobotPose.Base},
+				}
+			case api.TypeGetShoulder:
+				hmc <- api.HandlerMessage{
+					Type:  api.TypeCurrentShoulder,
+					Value: []interface{}{controller.CurrentRobotPose.Shoulder},
+				}
+			case api.TypeGetElbow:
+				hmc <- api.HandlerMessage{
+					Type:  api.TypeCurrentElbow,
+					Value: []interface{}{controller.CurrentRobotPose.Elbow},
+				}
+			case api.TypeGetWristAngle:
+				hmc <- api.HandlerMessage{
+					Type:  api.TypeCurrentWristAngle,
+					Value: []interface{}{controller.CurrentRobotPose.WristAngle},
+				}
+			case api.TypeGetWristRotation:
+				hmc <- api.HandlerMessage{
+					Type:  api.TypeCurrentWristRotation,
+					Value: []interface{}{controller.CurrentRobotPose.WristRotation},
+				}
+			case api.TypeGetGripper:
+				hmc <- api.HandlerMessage{
+					Type:  api.TypeCurrentGripper,
+					Value: []interface{}{controller.CurrentRobotPose.Gripper},
+				}
+			case api.TypeGetPosture:
+				hmc <- api.HandlerMessage{
+					Type:  api.TypeCurrentPosture,
+					Value: []interface{}{*controller.CurrentRobotPose},
 				}
 			case api.TypePutBase:
 				// check if there's a user

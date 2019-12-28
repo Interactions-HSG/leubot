@@ -56,6 +56,48 @@ var routes = Routes{
 		RemoveUser,
 	},
 	Route{
+		"GetBase",
+		strings.ToUpper("Get"),
+		APIBaseURL + "/base",
+		GetState,
+	},
+	Route{
+		"GetShoulder",
+		strings.ToUpper("Get"),
+		APIBaseURL + "/shoulder",
+		GetState,
+	},
+	Route{
+		"GetElbow",
+		strings.ToUpper("Get"),
+		APIBaseURL + "/elbow",
+		GetState,
+	},
+	Route{
+		"GetWristAngle",
+		strings.ToUpper("Get"),
+		APIBaseURL + "/wrist/angle",
+		GetState,
+	},
+	Route{
+		"GetWristRotation",
+		strings.ToUpper("Get"),
+		APIBaseURL + "/wrist/rotation",
+		GetState,
+	},
+	Route{
+		"GetGripper",
+		strings.ToUpper("Get"),
+		APIBaseURL + "/gripper",
+		GetState,
+	},
+	Route{
+		"GetPosture",
+		strings.ToUpper("Get"),
+		APIBaseURL + "/posture",
+		GetPosture,
+	},
+	Route{
 		"PutBase",
 		strings.ToUpper("Put"),
 		APIBaseURL + "/base",

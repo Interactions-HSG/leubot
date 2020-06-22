@@ -160,6 +160,13 @@ func PutBase(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest) // 400
 		return
 	}
+    // extract token from the X-API-Key header
+    if token := r.Header.Get("X-API-Key"); token != "" {
+        robotCommand.Token = token
+    } else {
+		w.WriteHeader(http.StatusBadRequest) // 401
+        return
+    }
 	// bypass the request to HandlerChannel
 	HandlerChannel <- HandlerMessage{
 		Type:  TypePutBase,
@@ -198,6 +205,13 @@ func PutShoulder(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest) // 400
 		return
 	}
+    // extract token from the X-API-Key header
+    if token := r.Header.Get("X-API-Key"); token != "" {
+        robotCommand.Token = token
+    } else {
+		w.WriteHeader(http.StatusBadRequest) // 401
+        return
+    }
 	// bypass the request to HandlerChannel
 	HandlerChannel <- HandlerMessage{
 		Type:  TypePutShoulder,
@@ -236,6 +250,13 @@ func PutElbow(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest) // 400
 		return
 	}
+    // extract token from the X-API-Key header
+    if token := r.Header.Get("X-API-Key"); token != "" {
+        robotCommand.Token = token
+    } else {
+		w.WriteHeader(http.StatusBadRequest) // 401
+        return
+    }
 	// bypass the request to HandlerChannel
 	HandlerChannel <- HandlerMessage{
 		Type:  TypePutElbow,
@@ -274,6 +295,13 @@ func PutWristAngle(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest) // 400
 		return
 	}
+    // extract token from the X-API-Key header
+    if token := r.Header.Get("X-API-Key"); token != "" {
+        robotCommand.Token = token
+    } else {
+		w.WriteHeader(http.StatusBadRequest) // 401
+        return
+    }
 	// bypass the request to HandlerChannel
 	HandlerChannel <- HandlerMessage{
 		Type:  TypePutWristAngle,
@@ -312,6 +340,13 @@ func PutWristRotation(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest) // 400
 		return
 	}
+    // extract token from the X-API-Key header
+    if token := r.Header.Get("X-API-Key"); token != "" {
+        robotCommand.Token = token
+    } else {
+		w.WriteHeader(http.StatusBadRequest) // 401
+        return
+    }
 	// bypass the request to HandlerChannel
 	HandlerChannel <- HandlerMessage{
 		Type:  TypePutWristRotation,
@@ -350,6 +385,13 @@ func PutGripper(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest) // 400
 		return
 	}
+    // extract token from the X-API-Key header
+    if token := r.Header.Get("X-API-Key"); token != "" {
+        robotCommand.Token = token
+    } else {
+		w.WriteHeader(http.StatusBadRequest) // 401
+        return
+    }
 	// bypass the request to HandlerChannel
 	HandlerChannel <- HandlerMessage{
 		Type:  TypePutGripper,
@@ -388,6 +430,13 @@ func PutPosture(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest) // 400
 		return
 	}
+    // extract token from the X-API-Key header
+    if token := r.Header.Get("X-API-Key"); token != "" {
+        posCom.Token = token
+    } else {
+		w.WriteHeader(http.StatusBadRequest) // 401
+        return
+    }
 	// bypass the request to HandlerChannel
 	HandlerChannel <- HandlerMessage{
 		Type:  TypePutPosture,
@@ -416,13 +465,14 @@ func PutPosture(w http.ResponseWriter, r *http.Request) {
 // PutReset processes the request to reset
 func PutReset(w http.ResponseWriter, r *http.Request) {
 	// parse the request body
-	decoder := json.NewDecoder(r.Body)
 	var robotCommand RobotCommand
-	err := decoder.Decode(&robotCommand)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest) // 400
-		return
-	}
+    // extract token from the X-API-Key header
+    if token := r.Header.Get("X-API-Key"); token != "" {
+        robotCommand.Token = token
+    } else {
+		w.WriteHeader(http.StatusBadRequest) // 401
+        return
+    }
 	// bypass the request to HandlerChannel
 	HandlerChannel <- HandlerMessage{
 		Type:  TypePutReset,

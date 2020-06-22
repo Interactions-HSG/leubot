@@ -26,8 +26,8 @@ import (
 
 // Environmental variables
 var (
-	// Current Version
-	version = "1.1.1"
+	// Current Version + manually edit in api/router.go
+	version = "1.2.0"
 
 	// app
 	app = kingpin.

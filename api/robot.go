@@ -85,19 +85,20 @@ func GetPosture(w http.ResponseWriter, r *http.Request) {
 // GetState gets the current value for each joint
 func GetState(w http.ResponseWriter, r *http.Request) {
 	var reqType HandlerMessageType
+    var APIBaseURL = "/leubot/v1.2"
 
 	switch r.RequestURI {
-	case "/leubot/base":
+    case APIBaseURL + "/base":
 		reqType = TypeGetBase
-	case "/leubot/shoulder":
+	case APIBaseURL + "/shoulder":
 		reqType = TypeGetShoulder
-	case "/leubot/elbow":
+	case APIBaseURL + "/elbow":
 		reqType = TypeGetElbow
-	case "/leubot/wrist/angle":
+	case APIBaseURL + "/wrist/angle":
 		reqType = TypeGetWristAngle
-	case "/leubot/wrist/rotation":
+	case APIBaseURL + "/wrist/rotation":
 		reqType = TypeGetWristRotation
-	case "/leubot/gripper":
+	case APIBaseURL + "/gripper":
 		reqType = TypeGetGripper
 	default:
 		w.WriteHeader(http.StatusInternalServerError) // 500

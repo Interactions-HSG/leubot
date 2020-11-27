@@ -1,210 +1,226 @@
----
 openapi: 3.0.0
 info:
-  title: ICSN 2018 Assignment 4 API docs - University of St. Gallen (IIT-HSG)
-  description: API for PhantomX AX-12 Reactor Robot Arm in Büro 52-5226. Watch the live streaming of the room at https://interactions.iit.unisg.ch/52-5226/live-streaming
+  description: >-
+    API for PhantomX AX-12 Reactor Robot Arm (Leubot) in Büro 61-102.<br/>
+    Users must retrieve an API Key by <a href="#/user/addUser">addUser</a> for any Leubot control actuation.<br/>
+    After 15 minutes of inactivity, the user will be automatically deleted from the system.<br/>
+    Rate limiting of the API is configured; all the methods allow for 1 request per second to prevent the server from overloading.<br/>
+    Watch the live streaming of the rooms at<br/>
+    - <a href="https://interactions.ics.unisg.ch/61-102/cam1/live-stream">https://interactions.ics.unisg.ch/61-102/cam1/live-stream</a>.<br/>
+    - <a href="https://interactions.ics.unisg.ch/61-102/cam2/live-stream">https://interactions.ics.unisg.ch/61-102/cam2/live-stream</a>.<br/>
+  version: 1.2.2
+  title: Leubot API docs - University of St.Gallen (ICS-HSG)
   contact:
     email: iori.mizutani@unisg.ch
   license:
     name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: 1.0.1
-servers:
-- url: https://interactions.iit.unisg.ch/52-5226/api/leubot/1.0.1
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 tags:
-- name: user
-  description: Manage the privilege for the robot control
-- name: robot
-  description: Control base servos of PhantomX AX-12 Reactor Robot Arm (All the request requires a token of the user)
+  - name: user
+    description: Manage the privilege for the robot control
+  - name: robot
+    description: Control base servos of PhantomX AX-12 Reactor Robot Arm (All the request requires a token of the user)
 paths:
   /user:
     get:
       tags:
-      - user
+        - user
       summary: Get the current user information
-      description: Check if anyone is currently using the robot control API
+      description: >-
+        Check if anyone is currently
+        using the robot control API
       operationId: getUser
       responses:
-        200:
+        '200':
           description: current user info
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserInfo'
+                $ref: "#/components/schemas/UserInfo"
     post:
       tags:
-      - user
+        - user
       summary: Add a user
-      description: Add yourself to the system and gain the token for the robot API access
+      description: >-
+        Add yourself to the system and gain the API Key
+        for the robot API access
       operationId: addUser
+      responses:
+        '201':
+          description: user created
+          headers:
+            Location:
+              description: The URL to delete the user; the last element in the path is the API key
+              schema:
+                type: string
+                format: url
+                example: https://api.interactions.ics.unisg.ch/leubot/v1.2/user/6dc1e80c14edf749e2ceb86d98ea1ca1
+        '400':
+          description: 'invalid input, object invalid'
+        '409':
+          description: another user already exists
       requestBody:
-        description: User information to add
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/UserInfo'
+        description: User information to add
         required: true
-      responses:
-        201:
-          description: user created
-          headers:
-            Location:
-              description: The URL to delete the user
-              style: SIMPLE
-              explode: false
-              schema:
-                type: string
-                format: url
-                example: https://interactions.iit.unisg.ch/52-5226/api/leubot/1.0.1/user/6dc1e80c14edf749e2ceb86d98ea1ca1
-        400:
-          description: invalid input, object invalid
-        409:
-          description: another user already exists
   /user/{token}:
     delete:
       tags:
-      - user
+        - user
       summary: Remove a user
-      description: Remove yourself from the system with the token to release the privilege to others
+      description: >-
+        Remove yourself from the system with the token
+        to release the privilege to others
       operationId: removeUser
       parameters:
-      - name: token
-        in: path
+      - in: path
+        name: token
         description: token of the user to delete
         required: true
-        style: SIMPLE
-        explode: false
         schema:
           type: string
         example: 6dc1e80c14edf749e2ceb86d98ea1ca1
       responses:
-        204:
+        '204':
           description: user deleted
-        404:
-          description: invalid token, no such user
+        '404':
+          description: 'invalid token, no such user'
   /elbow:
     put:
       tags:
-      - robot
+        - robot
       summary: Set the elbow joint rotation
-      description: Set the rotation value for the elbow joint. The valid range for `value` is [400,650].
+      description: >-
+        Set the rotation value for the elbow joint. The valid range for `value`
+        is [400,650].
       operationId: putElbow
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '202':
+          description: action completed
+        '400':
+          description: bad input parameter
+        '401':
+          description: invalid token provided; not authorized
       requestBody:
-        description: Pose information for the elbow joint
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/RobotCommand'
             example:
-              token: 6dc1e80c14edf749e2ceb86d98ea1ca1
               value: 400
+        description: Pose information for the elbow joint
         required: true
-      responses:
-        202:
-          description: action completed
-        400:
-          description: bad input parameter
-        401:
-          description: invalid token provided; not authorized
   /wrist/angle:
     put:
       tags:
-      - robot
+        - robot
       summary: Set the wrist angle
-      description: Set the angle value for the wrist joint. The valid range for `value` is [200,830].
+      description: >-
+        Set the angle value for the wrist joint. The valid range for `value` is
+        [200,830].
       operationId: putWristAngle
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '202':
+          description: action completed
+        '400':
+          description: bad input parameter
+        '401':
+          description: invalid token provided; not authorized
       requestBody:
-        description: Pose information for the wrist angle
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/RobotCommand'
             example:
-              token: 6dc1e80c14edf749e2ceb86d98ea1ca1
               value: 580
+        description: Pose information for the wrist angle
         required: true
-      responses:
-        202:
-          description: action completed
-        400:
-          description: bad input parameter
-        401:
-          description: invalid token provided; not authorized
   /wrist/rotation:
     put:
       tags:
-      - robot
+        - robot
       summary: Set the wrist rotation
-      description: Set the rotation value for the wrist joint. The valid range for `value` is [0,1023].
+      description: >-
+        Set the rotation value for the wrist joint. The valid range for `value`
+        is [0,1023].
       operationId: putWristRotation
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '202':
+          description: action completed
+        '400':
+          description: bad input parameter
+        '401':
+          description: invalid token provided; not authorized
       requestBody:
-        description: Pose information for the wrist rotation
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/RobotCommand'
             example:
-              token: 6dc1e80c14edf749e2ceb86d98ea1ca1
               value: 512
+        description: Pose information for the wrist rotation
         required: true
-      responses:
-        202:
-          description: action completed
-        400:
-          description: bad input parameter
-        401:
-          description: invalid token provided; not authorized
   /gripper:
     put:
       tags:
-      - robot
+        - robot
       summary: Set the gripper
-      description: Set the value for the gripper. The valid range for `value` is [0,512] where `0` is to close and `512` is to open all the way.
+      description: >-
+        Set the value for the gripper. The valid range for `value` is [0,512]
+        where `0` is to close and `512` is to open all the way.
       operationId: putGripper
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '202':
+          description: action completed
+        '400':
+          description: bad input parameter
+        '401':
+          description: invalid token provided; not authorized
       requestBody:
-        description: Pose information for the gripper
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/RobotCommand'
             example:
-              token: 6dc1e80c14edf749e2ceb86d98ea1ca1
               value: 255
+        description: Pose information for the gripper
         required: true
-      responses:
-        202:
-          description: action completed
-        400:
-          description: bad input parameter
-        401:
-          description: invalid token provided; not authorized
   /reset:
     put:
       tags:
-      - robot
+        - robot
       summary: Reset the robot
-      description: Reset the robot to the initial state. The `value` field is ignored in the request body.
+      description: >-
+        Reset the robot to the initial state. The `value` field is ignored in the request body.
       operationId: resetRobot
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RobotCommand'
-            example:
-              token: 6dc1e80c14edf749e2ceb86d98ea1ca1
-        required: true
+      security:
+        - ApiKeyAuth: []
       responses:
-        202:
+        '202':
           description: action completed
-        401:
+        '401':
           description: invalid token provided; not authorized
+servers:
+  - url: 'https://api.interactions.ics.unisg.ch/leubot1/v1.2'
+  - url: 'https://api.interactions.ics.unisg.ch/leubot2/v1.2'
 components:
   schemas:
     UserInfo:
-      required:
-      - email
-      - name
       type: object
+      required:
+        - email
+        - name
       properties:
         name:
           type: string
@@ -214,13 +230,12 @@ components:
         name: Iori Mizutani
         email: iori.mizutani@unisg.ch
     RobotCommand:
-      required:
-      - token
       type: object
       properties:
-        token:
-          type: string
         value:
           type: integer
-          format: int32
-  extensions: {}
+  securitySchemes:
+    ApiKeyAuth:        # arbitrary name for the security scheme
+      type: apiKey
+      in: header       # can be "header", "query" or "cookie"
+      name: X-API-KEY

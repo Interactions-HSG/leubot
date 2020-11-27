@@ -80,7 +80,7 @@ paths:
       responses:
         204:
           description: user deleted
-        400:
+        404:
           description: invalid token, no such user
   /elbow:
     put:

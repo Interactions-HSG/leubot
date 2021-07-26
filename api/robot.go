@@ -29,7 +29,15 @@ func PutBase(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "PUT")
+	w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, PUT")
+	switch r.Method {
+	case http.MethodOptions:
+		w.WriteHeader(http.StatusNoContent)
+		return
+	case http.MethodHead:
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
@@ -72,7 +80,15 @@ func PutShoulder(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "PUT")
+	w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, PUT")
+	switch r.Method {
+	case http.MethodOptions:
+		w.WriteHeader(http.StatusNoContent)
+		return
+	case http.MethodHead:
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
@@ -115,8 +131,16 @@ func PutElbow(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "PUT")
-	
+	w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, PUT")
+	switch r.Method {
+	case http.MethodOptions:
+		w.WriteHeader(http.StatusNoContent)
+		return
+	case http.MethodHead:
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
 	var robotCommand RobotCommand
@@ -158,8 +182,16 @@ func PutWristAngle(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "PUT")
-	
+	w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, PUT")
+	switch r.Method {
+	case http.MethodOptions:
+		w.WriteHeader(http.StatusNoContent)
+		return
+	case http.MethodHead:
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
 	var robotCommand RobotCommand
@@ -201,8 +233,16 @@ func PutWristRotation(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "PUT")
-	
+	w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, PUT")
+	switch r.Method {
+	case http.MethodOptions:
+		w.WriteHeader(http.StatusNoContent)
+		return
+	case http.MethodHead:
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
 	var robotCommand RobotCommand
@@ -244,8 +284,16 @@ func PutGripper(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "PUT")
-	
+	w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, PUT")
+	switch r.Method {
+	case http.MethodOptions:
+		w.WriteHeader(http.StatusNoContent)
+		return
+	case http.MethodHead:
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
 	var robotCommand RobotCommand
@@ -287,8 +335,16 @@ func PutPosture(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "PUT")
-	
+	w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, PUT")
+	switch r.Method {
+	case http.MethodOptions:
+		w.WriteHeader(http.StatusNoContent)
+		return
+	case http.MethodHead:
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
 	var posCom PostureCommand
@@ -327,8 +383,16 @@ func PutReset(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "PUT")
-	
+	w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, PUT")
+	switch r.Method {
+	case http.MethodOptions:
+		w.WriteHeader(http.StatusNoContent)
+		return
+	case http.MethodHead:
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
 	var robotCommand RobotCommand

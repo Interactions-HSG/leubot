@@ -37,8 +37,16 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "POST")
-	
+	w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, POST")
+	switch r.Method {
+	case http.MethodOptions:
+		w.WriteHeader(http.StatusNoContent)
+		return
+	case http.MethodHead:
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
 	var userInfo UserInfo
@@ -86,8 +94,16 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "GET")
-	
+	w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS")
+	switch r.Method {
+	case http.MethodOptions:
+		w.WriteHeader(http.StatusNoContent)
+		return
+	case http.MethodHead:
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	// bypass the request to HandlerChannel
 	HandlerChannel <- HandlerMessage{
 		Type: TypeGetUser,
@@ -125,8 +141,16 @@ func RemoveUser(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "DELETE")
-	
+	w.Header().Set("Access-Control-Allow-Methods", "DELETE, OPTIONS")
+	switch r.Method {
+	case http.MethodOptions:
+		w.WriteHeader(http.StatusNoContent)
+		return
+	case http.MethodHead:
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	// get the token from the path
 	token := path.Base(r.URL.Path)
 	HandlerChannel <- HandlerMessage{

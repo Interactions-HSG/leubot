@@ -26,6 +26,10 @@ type PostureCommand struct {
 
 // PutBase processes the request for Base
 func PutBase(w http.ResponseWriter, r *http.Request) {
+	// allow CORS here By * or specific origin
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
 	var robotCommand RobotCommand
@@ -64,6 +68,10 @@ func PutBase(w http.ResponseWriter, r *http.Request) {
 
 // PutShoulder processes the request for Shoulder
 func PutShoulder(w http.ResponseWriter, r *http.Request) {
+	// allow CORS here By * or specific origin
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
 	var robotCommand RobotCommand
@@ -102,6 +110,10 @@ func PutShoulder(w http.ResponseWriter, r *http.Request) {
 
 // PutElbow processes the request for Elbow
 func PutElbow(w http.ResponseWriter, r *http.Request) {
+	// allow CORS here By * or specific origin
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
 	var robotCommand RobotCommand
@@ -140,6 +152,10 @@ func PutElbow(w http.ResponseWriter, r *http.Request) {
 
 // PutWristAngle processes the request for WristAngle
 func PutWristAngle(w http.ResponseWriter, r *http.Request) {
+	// allow CORS here By * or specific origin
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
 	var robotCommand RobotCommand
@@ -178,6 +194,10 @@ func PutWristAngle(w http.ResponseWriter, r *http.Request) {
 
 // PutWristRotation processes the request for WristRotation
 func PutWristRotation(w http.ResponseWriter, r *http.Request) {
+	// allow CORS here By * or specific origin
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
 	var robotCommand RobotCommand
@@ -216,6 +236,10 @@ func PutWristRotation(w http.ResponseWriter, r *http.Request) {
 
 // PutGripper processes the request for Gripper
 func PutGripper(w http.ResponseWriter, r *http.Request) {
+	// allow CORS here By * or specific origin
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
 	var robotCommand RobotCommand
@@ -254,6 +278,10 @@ func PutGripper(w http.ResponseWriter, r *http.Request) {
 
 // PutPosture sets all the joints at once
 func PutPosture(w http.ResponseWriter, r *http.Request) {
+	// allow CORS here By * or specific origin
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
 	var posCom PostureCommand
@@ -289,6 +317,10 @@ func PutPosture(w http.ResponseWriter, r *http.Request) {
 
 // PutReset processes the request to reset
 func PutReset(w http.ResponseWriter, r *http.Request) {
+	// allow CORS here By * or specific origin
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
 	var robotCommand RobotCommand

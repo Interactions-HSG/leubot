@@ -132,7 +132,7 @@ func NewRouter(hmc chan HandlerMessage) *mux.Router {
 		handler = Logger(handler, route.Name)
 
 		router.
-			Methods(route.Method).
+			Methods(route.Method, "HEAD", "OPTIONS"). // add HEAD and OPTIONS to all the requests
 			Path(route.Pattern).
 			Name(route.Name).
 			Handler(handler)

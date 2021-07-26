@@ -34,6 +34,11 @@ func NewUser(userInfo *UserInfo) *User {
 }
 
 func AddUser(w http.ResponseWriter, r *http.Request) {
+	// allow CORS here By * or specific origin
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	w.Header().Set("Access-Control-Allow-Methods", "POST")
+	
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
 	var userInfo UserInfo
@@ -78,6 +83,11 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetUser(w http.ResponseWriter, r *http.Request) {
+	// allow CORS here By * or specific origin
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	w.Header().Set("Access-Control-Allow-Methods", "GET")
+	
 	// bypass the request to HandlerChannel
 	HandlerChannel <- HandlerMessage{
 		Type: TypeGetUser,
@@ -112,6 +122,11 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func RemoveUser(w http.ResponseWriter, r *http.Request) {
+	// allow CORS here By * or specific origin
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	w.Header().Set("Access-Control-Allow-Methods", "DELETE")
+	
 	// get the token from the path
 	token := path.Base(r.URL.Path)
 	HandlerChannel <- HandlerMessage{

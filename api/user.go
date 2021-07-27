@@ -37,7 +37,7 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, POST")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, DELETE, HEAD, OPTIONS, POST")
 	switch r.Method {
 	case http.MethodOptions:
 		w.WriteHeader(http.StatusNoContent)
@@ -94,7 +94,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, DELETE, HEAD, OPTIONS, POST")
 	switch r.Method {
 	case http.MethodOptions:
 		w.WriteHeader(http.StatusNoContent)
@@ -141,7 +141,7 @@ func RemoveUser(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, DELETE, HEAD, OPTIONS, POST")
 	switch r.Method {
 	case http.MethodOptions:
 		w.WriteHeader(http.StatusNoContent)

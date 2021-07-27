@@ -58,7 +58,7 @@ func GetPosture(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS, PUT")
 	switch r.Method {
 	case http.MethodOptions:
 		w.WriteHeader(http.StatusNoContent)
@@ -100,7 +100,7 @@ func GetState(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS, PUT")
 	switch r.Method {
 	case http.MethodOptions:
 		w.WriteHeader(http.StatusNoContent)
@@ -182,7 +182,7 @@ func PutBase(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, PUT")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS, PUT")
 	switch r.Method {
 	case http.MethodOptions:
 		w.WriteHeader(http.StatusNoContent)
@@ -240,7 +240,7 @@ func PutShoulder(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, PUT")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS, PUT")
 	switch r.Method {
 	case http.MethodOptions:
 		w.WriteHeader(http.StatusNoContent)
@@ -298,7 +298,7 @@ func PutElbow(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, PUT")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS, PUT")
 	switch r.Method {
 	case http.MethodOptions:
 		w.WriteHeader(http.StatusNoContent)
@@ -356,7 +356,7 @@ func PutWristAngle(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, PUT")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS, PUT")
 	switch r.Method {
 	case http.MethodOptions:
 		w.WriteHeader(http.StatusNoContent)
@@ -414,7 +414,7 @@ func PutWristRotation(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, PUT")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS, PUT")
 	switch r.Method {
 	case http.MethodOptions:
 		w.WriteHeader(http.StatusNoContent)
@@ -472,7 +472,7 @@ func PutGripper(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, PUT")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS, PUT")
 	switch r.Method {
 	case http.MethodOptions:
 		w.WriteHeader(http.StatusNoContent)
@@ -530,7 +530,7 @@ func PutPosture(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, PUT")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS, PUT")
 	switch r.Method {
 	case http.MethodOptions:
 		w.WriteHeader(http.StatusNoContent)

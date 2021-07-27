@@ -16,7 +16,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	//"runtime/debug"
+	"runtime/debug"
 
 	"github.com/Interactions-HSG/leubot/api"
 	"github.com/Interactions-HSG/leubot/armlink"
@@ -25,69 +25,26 @@ import (
 
 // Environmental variables
 var (
-	// app
-	app = kingpin.
-		New("leubot", "Provide a Web API for the PhantomX AX-12 Reactor Robot Arm.")
-
-	// delta for the leubot
 	defaultDelta = uint8(128)
 
-	// flags
-	mastertoken = app.
-			Flag("mastertoken", "The master token for debug.").
-			Default("sometoken").
-			String()
-
-	miioenabled = app.
-			Flag("miioenabled", "Enable Xiaomi yeelight device.").
-			Default("false").
-			Bool()
-
-	miiocli = app.
-		Flag("miiocli", "The path to miio cli.").
-		Default("/opt/bin/miiocli").
-		String()
-
-	miiotoken = app.
-			Flag("miiotoken", "The token for Xiaomi yeelight device.").
-			Default("0000000000000000000000000000").
-			String()
-
-	miioip = app.
-		Flag("miioip", "The IP address for Xiaomi yeelight device.").
-		Default("192.168.1.2").
-		String()
-
-	serverIP = app.
-			Flag("ip", "The IP address of the Leubot server.").
-			Default("172.0.0.1").
-			String()
-
-	serverPort = app.
-			Flag("port", "The serving port of the Leubot server.").
-			Default("6789").
-			String()
-
-	slackappenabled = app.
-			Flag("slackappenabled", "Enable Slack app for user previleges.").
-			Default("false").
-			Bool()
-	slackwebhookurl = app.
-			Flag("slackwebhookurl", "The webhook url for posting the json payloads.").
-			Default("https://hooks.slack.com/services/...").
-			String()
-
-	userTimeout = app.
-			Flag("userTimeout", "The timeout duration for users in seconds.").
-			Default("900").
-			Int()
+	app             = kingpin.New("leubot", "Provide a Web API for the PhantomX AX-12 Reactor Robot Arm.")
+	masterToken     = app.Flag("masterToken", "The master token for debug.").Default("sometoken").String()
+	miioEnabled     = app.Flag("miioEnabled", "Enable Xiaomi yeelight device.").Default("false").Bool()
+	miioPATH        = app.Flag("miioPATH", "The path to miio cli.").Default("/opt/bin/miioPATH").String()
+	miioToken       = app.Flag("miioToken", "The token for Xiaomi yeelight device.").Default("0000000000000000000000000000").String()
+	miioIP          = app.Flag("miioIP", "The IP address for Xiaomi yeelight device.").Default("192.168.1.2").String()
+	serverIP        = app.Flag("ip", "The IP address of the Leubot server.").Default("172.0.0.1").String()
+	serverPort      = app.Flag("port", "The serving port of the Leubot server.").Default("6789").String()
+	slackAppEnabled = app.Flag("slackAppEnabled", "Enable Slack app for user previleges.").Default("false").Bool()
+	slackWebHookURL = app.Flag("slackWebHookURL", "The webhook url for posting the json payloads.").Default("https://hooks.slack.com/services/...").String()
+	userTimeout     = app.Flag("userTimeout", "The timeout duration for users in seconds.").Default("900").Int()
 )
 
-// postToSlack posts the status to Slack if slackappenabled
+// postToSlack posts the status to Slack if slackAppEnabled
 func postToSlack(msg string) {
-	if *slackappenabled {
+	if *slackAppEnabled {
 		var jsonStr = []byte(msg)
-		req, err := http.NewRequest("POST", *slackwebhookurl, bytes.NewBuffer(jsonStr))
+		req, err := http.NewRequest("POST", *slackWebHookURL, bytes.NewBuffer(jsonStr))
 		req.Header.Set("Content-Type", "application/json")
 		r, err := (&http.Client{}).Do(req)
 		if err != nil {
@@ -97,14 +54,14 @@ func postToSlack(msg string) {
 	}
 }
 
-// switchLight turns on/off the light if miioenabled
+// switchLight turns on/off the light if miioEnabled
 func switchLight(on bool) {
-	if *miioenabled {
+	if *miioEnabled {
 		stateOnOff := "on"
 		if !on {
 			stateOnOff = "off"
 		}
-		cmd := exec.Command(*miiocli, "yeelight", "--ip", *miioip, "--token", *miiotoken, stateOnOff)
+		cmd := exec.Command(*miioPATH, "yeelight", "--ip", *miioIP, "--token", *miioToken, stateOnOff)
 		cmd.Run()
 	}
 }
@@ -113,16 +70,22 @@ func main() {
 	parse := kingpin.MustParse(app.Parse(os.Args[1:]))
 	_ = parse
 
-	//bi, _ := debug.ReadBuildInfo()
-	//app.Version(bi.Main.Version)
-	//log.Printf("Server started: %v", bi.Main.Version)
+	bi, ok := debug.ReadBuildInfo()
+	var version string
+	if ok {
+		version = bi.Main.Version
+	} else {
+		version = "v1.2"
+	}
+	app.Version(version)
+	log.Printf("Leubot (%v) started", version)
 
 	// initialize ArmLink serial interface to control the robot
 	als := armlink.NewArmLinkSerial()
 	defer als.Close()
 
 	// create the controller with the serial
-	controller := NewController(als)
+	controller := NewController(als, *masterToken, version)
 	defer controller.Shutdown()
 
 	router := api.NewRouter(controller.HandlerChannel)

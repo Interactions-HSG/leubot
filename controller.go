@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"os/exec"
 	"time"
 
 	"github.com/Interactions-HSG/leubot/api"
@@ -18,9 +17,19 @@ type Controller struct {
 	CurrentUser       *api.User
 	HandlerChannel    chan api.HandlerMessage
 	LastArmLinkPacket *armlink.ArmLinkPacket
+	MasterToken       string
 	UserActChannel    chan bool
 	UserTimer         *time.Timer
 	UserTimerFinish   chan bool
+	Version           string
+}
+
+// Validate checks if the given token is valid
+func (controller *Controller) Validate(token string) bool {
+	if token != controller.CurrentUser.Token && token != controller.MasterToken {
+		return false
+	}
+	return true
 }
 
 // ResetPose resets the RobotPose to its home position
@@ -46,7 +55,7 @@ func (controller *Controller) Shutdown() {
 }
 
 // NewController creates a new instance of Controller
-func NewController(als *armlink.ArmLinkSerial) *Controller {
+func NewController(als *armlink.ArmLinkSerial, mt string, ver string) *Controller {
 	hmc := make(chan api.HandlerMessage)
 	controller := Controller{
 		ArmLinkSerial:     als,
@@ -54,9 +63,11 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 		CurrentUser:       &api.User{},
 		HandlerChannel:    hmc,
 		LastArmLinkPacket: &armlink.ArmLinkPacket{},
+		MasterToken:       mt,
 		UserActChannel:    make(chan bool),
 		UserTimer:         time.NewTimer(time.Second * 10),
 		UserTimerFinish:   make(chan bool),
+		Version:           ver,
 	}
 	controller.ResetPose()
 	controller.UserTimer.Stop()
@@ -116,10 +127,7 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 				// register the user to the system with the new token
 				controller.CurrentUser = api.NewUser(&userInfo)
 				// turn on the light
-				if *miioenabled {
-					cmd := exec.Command(*miiocli, "yeelight", "--ip", *miioip, "--token", *miiotoken, "on")
-					cmd.Run()
-				}
+				switchLight(true)
 				// set the robot in Joint mode and go to home
 				alp := &armlink.ArmLinkPacket{}
 				alp.SetExtended(armlink.ExtendedReset)
@@ -185,7 +193,7 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 					break
 				}
 				// check if the token is valid
-				if token != controller.CurrentUser.Token && token != *mastertoken {
+				if !controller.Validate(token) {
 					hmc <- api.HandlerMessage{
 						Type: api.TypeUserNotFound,
 					}
@@ -265,7 +273,7 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 					break
 				}
 				// check if the token is valid
-				if robotCommand.Token != controller.CurrentUser.Token && robotCommand.Token != *mastertoken {
+				if !controller.Validate(robotCommand.Token) {
 					hmc <- api.HandlerMessage{
 						Type: api.TypeInvalidToken,
 					}
@@ -310,7 +318,7 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 					break
 				}
 				// check if the token is valid
-				if robotCommand.Token != controller.CurrentUser.Token && robotCommand.Token != *mastertoken {
+				if !controller.Validate(robotCommand.Token) {
 					hmc <- api.HandlerMessage{
 						Type: api.TypeInvalidToken,
 					}
@@ -355,7 +363,7 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 					break
 				}
 				// check if the token is valid
-				if robotCommand.Token != controller.CurrentUser.Token && robotCommand.Token != *mastertoken {
+				if !controller.Validate(robotCommand.Token) {
 					hmc <- api.HandlerMessage{
 						Type: api.TypeInvalidToken,
 					}
@@ -400,7 +408,7 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 					break
 				}
 				// check if the token is valid
-				if robotCommand.Token != controller.CurrentUser.Token && robotCommand.Token != *mastertoken {
+				if !controller.Validate(robotCommand.Token) {
 					hmc <- api.HandlerMessage{
 						Type: api.TypeInvalidToken,
 					}
@@ -445,7 +453,7 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 					break
 				}
 				// check if the token is valid
-				if robotCommand.Token != controller.CurrentUser.Token && robotCommand.Token != *mastertoken {
+				if !controller.Validate(robotCommand.Token) {
 					hmc <- api.HandlerMessage{
 						Type: api.TypeInvalidToken,
 					}
@@ -490,7 +498,7 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 					break
 				}
 				// check if the token is valid
-				if robotCommand.Token != controller.CurrentUser.Token && robotCommand.Token != *mastertoken {
+				if !controller.Validate(robotCommand.Token) {
 					hmc <- api.HandlerMessage{
 						Type: api.TypeInvalidToken,
 					}
@@ -535,7 +543,7 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 					break
 				}
 				// check if the token is valid
-				if posCom.Token != controller.CurrentUser.Token && posCom.Token != *mastertoken {
+				if !controller.Validate(posCom.Token) {
 					hmc <- api.HandlerMessage{
 						Type: api.TypeInvalidToken,
 					}
@@ -584,7 +592,7 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 					break
 				}
 				// check if the token is valid
-				if robotCommand.Token != controller.CurrentUser.Token && robotCommand.Token != *mastertoken {
+				if !controller.Validate(robotCommand.Token) {
 					hmc <- api.HandlerMessage{
 						Type: api.TypeInvalidToken,
 					}

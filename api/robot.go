@@ -128,7 +128,7 @@ func getState(w http.ResponseWriter, r *http.Request) {
 		getPosture(w, r)
 		return
 	default:
-		log.Printf("%#v", http.StatusInternalServerError)
+		log.Printf("%v: %#v", r.RequestURI, http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError) // 500
 		return
 	}
@@ -163,7 +163,7 @@ func getState(w http.ResponseWriter, r *http.Request) {
 	case TypeCurrentGripper:
 		name = "gripper"
 	default: // something went wrong
-		log.Printf("%#v", http.StatusInternalServerError)
+		log.Printf("%#v: %#v", msg.Type, http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError) // 500
 		return
 	}
@@ -206,7 +206,7 @@ func putState(w http.ResponseWriter, r *http.Request) {
 		putReset(w, r)
 		return
 	default:
-		log.Printf("%#v", http.StatusInternalServerError)
+		log.Printf("%#v: %#v", r.RequestURI, http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError) // 500
 	}
 
@@ -256,7 +256,7 @@ func putState(w http.ResponseWriter, r *http.Request) {
 		log.Println("UserNotFound")
 		w.WriteHeader(http.StatusBadRequest) // 400
 	default: // something went wrong
-		log.Printf("%#v", http.StatusInternalServerError)
+		log.Printf("%#v: %#v", msg.Type, http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError) // 500
 	}
 }
@@ -306,7 +306,7 @@ func putPosture(w http.ResponseWriter, r *http.Request) {
 		log.Println("UserNotFound")
 		w.WriteHeader(http.StatusBadRequest) // 400
 	default: // something went wrong
-		log.Printf("%#v", http.StatusInternalServerError)
+		log.Printf("%#v: %#v", msg.Type, http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError) // 500
 	}
 }
@@ -330,6 +330,7 @@ func putReset(w http.ResponseWriter, r *http.Request) {
 	msg, ok := <-HandlerChannel
 	if !ok {
 		log.Printf("%#v", http.StatusInternalServerError)
+		log.Printf("%#v: %#v", msg.Type, http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError) // 500
 		return
 	}
@@ -346,7 +347,7 @@ func putReset(w http.ResponseWriter, r *http.Request) {
 		log.Println("UserNotFound")
 		w.WriteHeader(http.StatusBadRequest) // 400
 	default: // something went wrong
-		log.Printf("%#v", http.StatusInternalServerError)
+		log.Printf("%#v: %#v", msg.Type, http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError) // 500
 	}
 }

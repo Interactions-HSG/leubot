@@ -33,11 +33,10 @@ func NewUser(userInfo *UserInfo) *User {
 	}
 }
 
-func AddUser(w http.ResponseWriter, r *http.Request) {
+func UserHandler(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, DELETE, HEAD, OPTIONS, POST")
 	switch r.Method {
 	case http.MethodOptions:
 		w.WriteHeader(http.StatusNoContent)
@@ -47,6 +46,17 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	switch r.Method {
+	case http.MethodGet:
+		getUser(w, r)
+	case http.MethodDelete:
+		removeUser(w, r)
+	case http.MethodPost:
+		addUser(w, r)
+	}
+}
+
+func addUser(w http.ResponseWriter, r *http.Request) {
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
 	var userInfo UserInfo
@@ -90,20 +100,7 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func GetUser(w http.ResponseWriter, r *http.Request) {
-	// allow CORS here By * or specific origin
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, DELETE, HEAD, OPTIONS, POST")
-	switch r.Method {
-	case http.MethodOptions:
-		w.WriteHeader(http.StatusNoContent)
-		return
-	case http.MethodHead:
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
+func getUser(w http.ResponseWriter, r *http.Request) {
 	// bypass the request to HandlerChannel
 	HandlerChannel <- HandlerMessage{
 		Type: TypeGetUser,
@@ -137,20 +134,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func RemoveUser(w http.ResponseWriter, r *http.Request) {
-	// allow CORS here By * or specific origin
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, DELETE, HEAD, OPTIONS, POST")
-	switch r.Method {
-	case http.MethodOptions:
-		w.WriteHeader(http.StatusNoContent)
-		return
-	case http.MethodHead:
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
+func removeUser(w http.ResponseWriter, r *http.Request) {
 	// get the token from the path
 	token := path.Base(r.URL.Path)
 	HandlerChannel <- HandlerMessage{

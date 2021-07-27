@@ -28,9 +28,12 @@ var (
 	defaultDelta = uint8(128)
 
 	app             = kingpin.New("leubot", "Provide a Web API for the PhantomX AX-12 Reactor Robot Arm.")
+	apiHost         = app.Flag("apiHost", "The hostname for the API.").Default("api.interactions.ics.unisg.ch").String()
+	apiPath         = app.Flag("apiPath", "The name for the path.").Default("leubot").String()
+	apiProto        = app.Flag("apiProto", "The protocol for the API.").Default("https://").String()
 	masterToken     = app.Flag("masterToken", "The master token for debug.").Default("sometoken").String()
 	miioEnabled     = app.Flag("miioEnabled", "Enable Xiaomi yeelight device.").Default("false").Bool()
-	miioPATH        = app.Flag("miioPATH", "The path to miio cli.").Default("/opt/bin/miioPATH").String()
+	miiocliPath     = app.Flag("miiocliPath", "The path to miio cli.").Default("/opt/bin/miiocli").String()
 	miioToken       = app.Flag("miioToken", "The token for Xiaomi yeelight device.").Default("0000000000000000000000000000").String()
 	miioIP          = app.Flag("miioIP", "The IP address for Xiaomi yeelight device.").Default("192.168.1.2").String()
 	serverIP        = app.Flag("ip", "The IP address of the Leubot server.").Default("172.0.0.1").String()
@@ -61,15 +64,12 @@ func switchLight(on bool) {
 		if !on {
 			stateOnOff = "off"
 		}
-		cmd := exec.Command(*miioPATH, "yeelight", "--ip", *miioIP, "--token", *miioToken, stateOnOff)
+		cmd := exec.Command(*miiocliPath, "yeelight", "--ip", *miioIP, "--token", *miioToken, stateOnOff)
 		cmd.Run()
 	}
 }
 
 func main() {
-	parse := kingpin.MustParse(app.Parse(os.Args[1:]))
-	_ = parse
-
 	bi, ok := debug.ReadBuildInfo()
 	var version string
 	if ok {
@@ -78,6 +78,12 @@ func main() {
 		version = "v1.2"
 	}
 	app.Version(version)
+
+	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
+	case "version":
+		fmt.Println(version)
+		os.Exit(0)
+	}
 	log.Printf("Leubot (%v) started", version)
 
 	// initialize ArmLink serial interface to control the robot
@@ -88,6 +94,6 @@ func main() {
 	controller := NewController(als, *masterToken, version)
 	defer controller.Shutdown()
 
-	router := api.NewRouter(controller.HandlerChannel)
+	router := api.NewRouter(*apiHost, *apiPath, *apiProto, controller.HandlerChannel, version)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%v:%v", *serverIP, *serverPort), router))
 }

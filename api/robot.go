@@ -55,19 +55,6 @@ type PostureCommand struct {
 
 // GetPosture gets the current posture
 func GetPosture(w http.ResponseWriter, r *http.Request) {
-	// allow CORS here By * or specific origin
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS, PUT")
-	switch r.Method {
-	case http.MethodOptions:
-		w.WriteHeader(http.StatusNoContent)
-		return
-	case http.MethodHead:
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
 	// bypass the request to HandlerChannel
 	HandlerChannel <- HandlerMessage{
 		Type:  TypeGetPosture,
@@ -97,35 +84,24 @@ func GetPosture(w http.ResponseWriter, r *http.Request) {
 
 // GetState gets the current value for each joint
 func GetState(w http.ResponseWriter, r *http.Request) {
-	// allow CORS here By * or specific origin
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS, PUT")
-	switch r.Method {
-	case http.MethodOptions:
-		w.WriteHeader(http.StatusNoContent)
-		return
-	case http.MethodHead:
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
 	var reqType HandlerMessageType
-	var APIBaseURL = "/leubot1/v1.2"
 
 	switch r.RequestURI {
-	case APIBaseURL + "/base":
+	case APIBasePath + "/base":
 		reqType = TypeGetBase
-	case APIBaseURL + "/shoulder":
+	case APIBasePath + "/shoulder":
 		reqType = TypeGetShoulder
-	case APIBaseURL + "/elbow":
+	case APIBasePath + "/elbow":
 		reqType = TypeGetElbow
-	case APIBaseURL + "/wrist/angle":
+	case APIBasePath + "/wrist/angle":
 		reqType = TypeGetWristAngle
-	case APIBaseURL + "/wrist/rotation":
+	case APIBasePath + "/wrist/rotation":
 		reqType = TypeGetWristRotation
-	case APIBaseURL + "/gripper":
+	case APIBasePath + "/gripper":
 		reqType = TypeGetGripper
+	case APIBasePath + "/posture":
+		GetPosture(w, r)
+		return
 	default:
 		w.WriteHeader(http.StatusInternalServerError) // 500
 		return
@@ -177,12 +153,11 @@ func GetState(w http.ResponseWriter, r *http.Request) {
 	w.Write(js)
 }
 
-// PutBase processes the request
-func PutBase(w http.ResponseWriter, r *http.Request) {
+// RobotHandler process the request to /base
+func RobotHandler(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS, PUT")
 	switch r.Method {
 	case http.MethodOptions:
 		w.WriteHeader(http.StatusNoContent)
@@ -192,6 +167,35 @@ func PutBase(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	switch r.Method {
+	case http.MethodGet:
+		GetState(w, r)
+	case http.MethodPut:
+		switch r.RequestURI {
+		case APIBasePath + "/base":
+			PutBase(w, r)
+		case APIBasePath + "/shoulder":
+			PutShoulder(w, r)
+		case APIBasePath + "/elbow":
+			PutElbow(w, r)
+		case APIBasePath + "/wrist/angle":
+			PutWristAngle(w, r)
+		case APIBasePath + "/wrist/rotation":
+			PutWristRotation(w, r)
+		case APIBasePath + "/gripper":
+			PutGripper(w, r)
+		case APIBasePath + "/posture":
+			PutPosture(w, r)
+		case APIBasePath + "/reset":
+			PutReset(w, r)
+		default:
+			w.WriteHeader(http.StatusInternalServerError) // 500
+		}
+	}
+}
+
+// PutBase processes the request
+func PutBase(w http.ResponseWriter, r *http.Request) {
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
 	var robotCommand RobotCommand
@@ -237,19 +241,6 @@ func PutBase(w http.ResponseWriter, r *http.Request) {
 
 // PutShoulder processes the request for Shoulder
 func PutShoulder(w http.ResponseWriter, r *http.Request) {
-	// allow CORS here By * or specific origin
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS, PUT")
-	switch r.Method {
-	case http.MethodOptions:
-		w.WriteHeader(http.StatusNoContent)
-		return
-	case http.MethodHead:
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
 	var robotCommand RobotCommand
@@ -295,19 +286,6 @@ func PutShoulder(w http.ResponseWriter, r *http.Request) {
 
 // PutElbow processes the request for Elbow
 func PutElbow(w http.ResponseWriter, r *http.Request) {
-	// allow CORS here By * or specific origin
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS, PUT")
-	switch r.Method {
-	case http.MethodOptions:
-		w.WriteHeader(http.StatusNoContent)
-		return
-	case http.MethodHead:
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
 	var robotCommand RobotCommand
@@ -353,19 +331,6 @@ func PutElbow(w http.ResponseWriter, r *http.Request) {
 
 // PutWristAngle processes the request for WristAngle
 func PutWristAngle(w http.ResponseWriter, r *http.Request) {
-	// allow CORS here By * or specific origin
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS, PUT")
-	switch r.Method {
-	case http.MethodOptions:
-		w.WriteHeader(http.StatusNoContent)
-		return
-	case http.MethodHead:
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
 	var robotCommand RobotCommand
@@ -411,19 +376,6 @@ func PutWristAngle(w http.ResponseWriter, r *http.Request) {
 
 // PutWristRotation processes the request for WristRotation
 func PutWristRotation(w http.ResponseWriter, r *http.Request) {
-	// allow CORS here By * or specific origin
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS, PUT")
-	switch r.Method {
-	case http.MethodOptions:
-		w.WriteHeader(http.StatusNoContent)
-		return
-	case http.MethodHead:
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
 	var robotCommand RobotCommand
@@ -469,19 +421,6 @@ func PutWristRotation(w http.ResponseWriter, r *http.Request) {
 
 // PutGripper processes the request for Gripper
 func PutGripper(w http.ResponseWriter, r *http.Request) {
-	// allow CORS here By * or specific origin
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS, PUT")
-	switch r.Method {
-	case http.MethodOptions:
-		w.WriteHeader(http.StatusNoContent)
-		return
-	case http.MethodHead:
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
 	var robotCommand RobotCommand
@@ -527,19 +466,6 @@ func PutGripper(w http.ResponseWriter, r *http.Request) {
 
 // PutPosture sets all the joints at once
 func PutPosture(w http.ResponseWriter, r *http.Request) {
-	// allow CORS here By * or specific origin
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS, PUT")
-	switch r.Method {
-	case http.MethodOptions:
-		w.WriteHeader(http.StatusNoContent)
-		return
-	case http.MethodHead:
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
 	var posCom PostureCommand
@@ -582,19 +508,6 @@ func PutPosture(w http.ResponseWriter, r *http.Request) {
 
 // PutReset processes the request to reset
 func PutReset(w http.ResponseWriter, r *http.Request) {
-	// allow CORS here By * or specific origin
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, PUT")
-	switch r.Method {
-	case http.MethodOptions:
-		w.WriteHeader(http.StatusNoContent)
-		return
-	case http.MethodHead:
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
 	// parse the request body
 	var robotCommand RobotCommand
 	// extract token from the X-API-Key header

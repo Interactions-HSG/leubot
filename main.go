@@ -29,6 +29,7 @@ var (
 	apiHost         = app.Flag("apiHost", "The hostname for the API.").Default("api.interactions.ics.unisg.ch").String()
 	apiPath         = app.Flag("apiPath", "The name for the path.").Default("leubot").String()
 	apiProto        = app.Flag("apiProto", "The protocol for the API.").Default("https://").String()
+	apiVersion      = app.Flag("apiVersion", "The custom API version for the API.").Default("").String()
 	defaultDelta    = app.Flag("defaultDelta", "The default value for displacement delta.").Default("128").Uint8()
 	masterToken     = app.Flag("masterToken", "The master token for debug.").Default("sometoken").String()
 	miioEnabled     = app.Flag("miioEnabled", "Enable Xiaomi yeelight device.").Default("false").Bool()
@@ -69,22 +70,24 @@ func switchLight(on bool) {
 }
 
 func main() {
-	bi, ok := debug.ReadBuildInfo()
+	// set the loc in the logs
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
+	// parse the options
+	kingpin.MustParse(app.Parse(os.Args[1:]))
+
+	// set the version
 	var version string
-	if ok {
-		version = bi.Main.Version
+	if *apiVersion != "" {
+		version = *apiVersion
 	} else {
-		version = "v1.2"
+		bi, ok := debug.ReadBuildInfo()
+		if ok {
+			version = bi.Main.Version
+		}
 	}
 	app.Version(version)
 
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-
-	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
-	case "version":
-		fmt.Println(version)
-		os.Exit(0)
-	}
 	log.Printf("Leubot (%v) started", version)
 
 	// initialize ArmLink serial interface to control the robot

@@ -130,7 +130,7 @@ func NewRouter(apiHost string, apiPath string, apiProto string, hmc chan Handler
 			"PutReset",
 			[]string{http.MethodOptions, http.MethodPut},
 			APIBasePath + "/reset",
-			PutReset,
+			RobotHandler,
 		},
 	}
 

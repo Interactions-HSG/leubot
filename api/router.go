@@ -34,111 +34,6 @@ var (
 	HandlerChannel chan HandlerMessage
 )
 
-var routes = Routes{
-	Route{
-		"/user",
-		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPost},
-		APIBasePath + "/user",
-		UserHandler,
-	},
-	Route{
-		"/user/{token}",
-		[]string{http.MethodDelete, http.MethodOptions},
-		APIBasePath + "/user/{token}",
-		UserHandler,
-	},
-	Route{
-		"GetBase",
-		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBasePath + "/base",
-		GetState,
-	},
-	Route{
-		"GetShoulder",
-		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBasePath + "/shoulder",
-		GetState,
-	},
-	Route{
-		"GetElbow",
-		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBasePath + "/elbow",
-		GetState,
-	},
-	Route{
-		"GetWristAngle",
-		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBasePath + "/wrist/angle",
-		GetState,
-	},
-	Route{
-		"GetWristRotation",
-		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBasePath + "/wrist/rotation",
-		GetState,
-	},
-	Route{
-		"GetGripper",
-		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBasePath + "/gripper",
-		GetState,
-	},
-	Route{
-		"GetPosture",
-		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBasePath + "/posture",
-		GetPosture,
-	},
-	Route{
-		"PutBase",
-		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBasePath + "/base",
-		PutBase,
-	},
-	Route{
-		"PutShoulder",
-		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBasePath + "/shoulder",
-		PutShoulder,
-	},
-	Route{
-		"PutElbow",
-		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBasePath + "/elbow",
-		PutElbow,
-	},
-	Route{
-		"PutWristAngle",
-		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBasePath + "/wrist/angle",
-		PutWristAngle,
-	},
-	Route{
-		"PutWristRotation",
-		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBasePath + "/wrist/rotation",
-		PutWristRotation,
-	},
-	Route{
-		"PutGripper",
-		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBasePath + "/gripper",
-		PutGripper,
-	},
-	Route{
-		"PutPosture",
-		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBasePath + "/posture",
-		PutPosture,
-	},
-	Route{
-		"PutReset",
-		[]string{http.MethodOptions, http.MethodPut},
-		APIBasePath + "/reset",
-		PutReset,
-	},
-}
-
 // Logger handles the logging in the router
 func Logger(inner http.Handler, name string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -175,6 +70,112 @@ func NewRouter(apiHost string, apiPath string, apiProto string, hmc chan Handler
 	APIHost = apiHost
 	APIProto = apiProto
 	log.Printf("Serving at %s%s%s", APIProto, APIHost, APIBasePath)
+
+	var routes = Routes{
+		Route{
+			"/user",
+			[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPost},
+			APIBasePath + "/user",
+			UserHandler,
+		},
+		Route{
+			"/user/{token}",
+			[]string{http.MethodDelete, http.MethodOptions},
+			APIBasePath + "/user/{token}",
+			UserHandler,
+		},
+		Route{
+			"GetBase",
+			[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
+			APIBasePath + "/base",
+			GetState,
+		},
+		Route{
+			"GetShoulder",
+			[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
+			APIBasePath + "/shoulder",
+			GetState,
+		},
+		Route{
+			"GetElbow",
+			[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
+			APIBasePath + "/elbow",
+			GetState,
+		},
+		Route{
+			"GetWristAngle",
+			[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
+			APIBasePath + "/wrist/angle",
+			GetState,
+		},
+		Route{
+			"GetWristRotation",
+			[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
+			APIBasePath + "/wrist/rotation",
+			GetState,
+		},
+		Route{
+			"GetGripper",
+			[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
+			APIBasePath + "/gripper",
+			GetState,
+		},
+		Route{
+			"GetPosture",
+			[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
+			APIBasePath + "/posture",
+			GetPosture,
+		},
+		Route{
+			"PutBase",
+			[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
+			APIBasePath + "/base",
+			PutBase,
+		},
+		Route{
+			"PutShoulder",
+			[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
+			APIBasePath + "/shoulder",
+			PutShoulder,
+		},
+		Route{
+			"PutElbow",
+			[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
+			APIBasePath + "/elbow",
+			PutElbow,
+		},
+		Route{
+			"PutWristAngle",
+			[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
+			APIBasePath + "/wrist/angle",
+			PutWristAngle,
+		},
+		Route{
+			"PutWristRotation",
+			[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
+			APIBasePath + "/wrist/rotation",
+			PutWristRotation,
+		},
+		Route{
+			"PutGripper",
+			[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
+			APIBasePath + "/gripper",
+			PutGripper,
+		},
+		Route{
+			"PutPosture",
+			[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
+			APIBasePath + "/posture",
+			PutPosture,
+		},
+		Route{
+			"PutReset",
+			[]string{http.MethodOptions, http.MethodPut},
+			APIBasePath + "/reset",
+			PutReset,
+		},
+	}
+
 	HandlerChannel = hmc
 	r := mux.NewRouter().StrictSlash(true)
 	// default handler

@@ -1,5 +1,7 @@
 module Interactions-HSG/leubot
 
+go 1.15
+
 require (
 	github.com/Interactions-HSG/leubot v1.2.3
 	github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc // indirect

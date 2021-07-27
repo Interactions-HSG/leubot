@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"runtime/debug"
 	"time"
 
 	"github.com/Interactions-HSG/leubot/api"
@@ -75,6 +76,11 @@ var (
 			Flag("userTimeout", "The timeout duration for users in seconds.").
 			Default("900").
 			Int()
+
+	showVersion = app.
+			Flag("version", "Show the version info.").
+			Default("false").
+			Bool()
 )
 
 // Controller is the main thread for this API provider
@@ -713,6 +719,12 @@ func main() {
 	app.Version(version)
 	parse := kingpin.MustParse(app.Parse(os.Args[1:]))
 	_ = parse
+
+	if *showVersion {
+		bi, _ := debug.ReadBuildInfo()
+		fmt.Printf("%v\n", bi.Main.Version)
+		os.Exit(0)
+	}
 
 	// initialize ArmLink serial interface to control the robot
 	als := armlink.NewArmLinkSerial()

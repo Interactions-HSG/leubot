@@ -40,19 +40,19 @@ var routes = Routes{
 	Route{
 		"AddUser",
 		strings.ToUpper("Post"),
-		APIBaseURL + "/user",
+		APIBaseURL + "/{user:user(?:\\/)?}",
 		AddUser,
 	},
 	Route{
 		"GetUser",
 		strings.ToUpper("Get"),
-		APIBaseURL + "/user",
+		APIBaseURL + "/{user:user(?:\\/)?}",
 		GetUser,
 	},
 	Route{
 		"RemoveUser",
 		strings.ToUpper("Delete"),
-		APIBaseURL + "/user/{token}",
+		APIBaseURL + "/user/{token:token(?:\\/)?}",
 		RemoveUser,
 	},
 	Route{

@@ -55,15 +55,6 @@ func defaultHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.RequestURI)
 }
 
-func loggingMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Do stuff here
-		log.Println(r.RequestURI)
-		// Call the next handler, which can be another middleware in the chain, or the final handler.
-		next.ServeHTTP(w, r)
-	})
-}
-
 // NewRouter creats a new instance of Router
 func NewRouter(apiHost string, apiPath string, apiProto string, hmc chan HandlerMessage, ver string) *mux.Router {
 	APIBasePath = fmt.Sprintf("/%s/%s", apiPath, ver)
@@ -144,7 +135,6 @@ func NewRouter(apiHost string, apiPath string, apiProto string, hmc chan Handler
 		handler = Logger(handler, route.Name)
 		r.Methods(route.Methods...).Path(route.Pattern).Name(route.Name).Handler(handler)
 	}
-	r.Use(loggingMiddleware)
 	r.Use(mux.CORSMethodMiddleware(r))
 
 	return r

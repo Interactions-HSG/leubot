@@ -89,6 +89,7 @@ func getPosture(w http.ResponseWriter, r *http.Request) {
 	msg, ok := <-HandlerChannel
 	// check the channel status
 	if !ok {
+		log.Printf("[api/robot.go] %#v", http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError) // 500
 		return
 	}
@@ -127,6 +128,7 @@ func getState(w http.ResponseWriter, r *http.Request) {
 		getPosture(w, r)
 		return
 	default:
+		log.Printf("[api/robot.go] %#v", http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError) // 500
 		return
 	}
@@ -140,6 +142,7 @@ func getState(w http.ResponseWriter, r *http.Request) {
 	// receive a message from the other end of HandlerChannel
 	msg, ok := <-HandlerChannel
 	if !ok {
+		log.Printf("[api/robot.go] %#v", http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError) // 500
 		return
 	}
@@ -160,6 +163,7 @@ func getState(w http.ResponseWriter, r *http.Request) {
 	case TypeCurrentGripper:
 		name = "gripper"
 	default: // something went wrong
+		log.Printf("[api/robot.go] %#v", http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError) // 500
 		return
 	}
@@ -167,7 +171,7 @@ func getState(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
-	log.Printf("[HandlerChannel] %s: %v", name, val)
+	log.Printf("[api/robot.go] %s: %v", name, val)
 	jointInfo := &JointInfo{name, val}
 	js, err := json.Marshal(jointInfo)
 	if err != nil {
@@ -202,6 +206,7 @@ func putState(w http.ResponseWriter, r *http.Request) {
 		putReset(w, r)
 		return
 	default:
+		log.Printf("[api/robot.go] %#v", http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError) // 500
 	}
 
@@ -231,6 +236,7 @@ func putState(w http.ResponseWriter, r *http.Request) {
 	// receive a message from the other end of HandlerChannel
 	msg, ok := <-HandlerChannel
 	if !ok {
+		log.Printf("[api/robot.go] %#v", http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError) // 500
 		return
 	}
@@ -238,15 +244,16 @@ func putState(w http.ResponseWriter, r *http.Request) {
 	// respond with the result
 	switch msg.Type {
 	case TypeActionPerformed: // the requested action is performed
-		log.Printf("[HandlerChannel] robotCommand.Value: %v", robotCommand.Value)
+		log.Printf("[api/robot.go] robotCommand.Value: %v", robotCommand.Value)
 		w.WriteHeader(http.StatusAccepted) // 202
 	case TypeInvalidCommand: // the invalid value provided
-		log.Printf("[HandlerChannel] InvalidCommand: %v", robotCommand.Value)
+		log.Printf("[api/robot.go] InvalidCommand: %v", robotCommand.Value)
 		w.WriteHeader(http.StatusBadRequest) // 400
 	case TypeInvalidToken: // the invalid token provided
-		log.Printf("[HandlerChannel] InvalidToken: %v", robotCommand.Token)
+		log.Printf("[api/robot.go] InvalidToken: %v", robotCommand.Token)
 		w.WriteHeader(http.StatusUnauthorized) // 401
 	default: // something went wrong
+		log.Printf("[api/robot.go] %#v", http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError) // 500
 	}
 }
@@ -279,6 +286,7 @@ func putPosture(w http.ResponseWriter, r *http.Request) {
 	// receive a message from the other end of HandlerChannel
 	msg, ok := <-HandlerChannel
 	if !ok {
+		log.Printf("[api/robot.go] %#v", http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError) // 500
 		return
 	}
@@ -286,12 +294,13 @@ func putPosture(w http.ResponseWriter, r *http.Request) {
 	// respond with the result
 	switch msg.Type {
 	case TypeActionPerformed: // the requested action is performed
-		log.Println("[HandlerChannel] Posture")
+		log.Println("[api/robot.go] Posture")
 		w.WriteHeader(http.StatusAccepted) // 202
 	case TypeInvalidToken: // the invalid token provided
-		log.Printf("[HandlerChannel] InvalidToken: %v", posCom.Token)
+		log.Printf("[api/robot.go] InvalidToken: %v", posCom.Token)
 		w.WriteHeader(http.StatusUnauthorized) // 401
 	default: // something went wrong
+		log.Printf("[api/robot.go] %#v", http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError) // 500
 	}
 }
@@ -314,6 +323,7 @@ func putReset(w http.ResponseWriter, r *http.Request) {
 	// receive a message from the other end of HandlerChannel
 	msg, ok := <-HandlerChannel
 	if !ok {
+		log.Printf("[api/robot.go] %#v", http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError) // 500
 		return
 	}
@@ -321,12 +331,13 @@ func putReset(w http.ResponseWriter, r *http.Request) {
 	// respond with the result
 	switch msg.Type {
 	case TypeActionPerformed: // the requested action is performed
-		log.Println("[HandlerChannel] Posture")
+		log.Println("[api/robot.go] Posture")
 		w.WriteHeader(http.StatusAccepted) // 202
 	case TypeInvalidToken: // the invalid token provided
-		log.Printf("[HandlerChannel] InvalidToken: %v", token)
+		log.Printf("[api/robot.go] InvalidToken: %v", token)
 		w.WriteHeader(http.StatusUnauthorized) // 401
 	default: // something went wrong
+		log.Printf("[api/robot.go] %#v", http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError) // 500
 	}
 }

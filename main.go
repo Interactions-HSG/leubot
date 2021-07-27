@@ -78,6 +78,8 @@ func main() {
 	}
 	app.Version(version)
 
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 	case "version":
 		fmt.Println(version)

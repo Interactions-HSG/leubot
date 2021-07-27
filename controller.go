@@ -149,7 +149,7 @@ func NewController(als *armlink.ArmLinkSerial, mt string, ver string) *Controlle
 				break
 			}
 
-			log.Printf("[CurrentRobotPose] %v", controller.CurrentRobotPose.String())
+			log.Printf("[controller.go] %v", controller.CurrentRobotPose.String())
 			switch msg.Type {
 			case api.TypeAddUser:
 				userInfo, ok := msg.Value[0].(api.UserInfo)

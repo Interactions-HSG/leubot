@@ -33,26 +33,26 @@ var APIProto = "https://"
 var APIHost = "api.interactions.ics.unisg.ch"
 
 // APIBaseURL is the path to the API
-var APIBaseURL = "/leubot/v1.2"
+var APIBaseURL = "/leubot1/v1.2"
 
 // TODO: construct after/within NewRouter()?
 var routes = Routes{
 	Route{
 		"AddUser",
 		strings.ToUpper("Post"),
-		APIBaseURL + "/{user:user(?:\\/)?}",
+        APIBaseURL + "/user",
 		AddUser,
 	},
 	Route{
 		"GetUser",
 		strings.ToUpper("Get"),
-		APIBaseURL + "/{user:user(?:\\/)?}",
+        APIBaseURL + "/user",
 		GetUser,
 	},
 	Route{
 		"RemoveUser",
 		strings.ToUpper("Delete"),
-		APIBaseURL + "/user/{token:token(?:\\/)?}",
+        APIBaseURL + "/user/{token}",
 		RemoveUser,
 	},
 	Route{

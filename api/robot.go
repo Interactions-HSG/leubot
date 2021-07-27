@@ -111,7 +111,7 @@ func GetState(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var reqType HandlerMessageType
-	var APIBaseURL = "/leubot/v1.2"
+	var APIBaseURL = "/leubot1/v1.2"
 
 	switch r.RequestURI {
 	case APIBaseURL + "/base":

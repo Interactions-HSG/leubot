@@ -16,7 +16,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"runtime/debug"
+	//"runtime/debug"
 	"time"
 
 	"github.com/Interactions-HSG/leubot/api"
@@ -27,9 +27,6 @@ import (
 
 // Environmental variables
 var (
-	// Current Version + manually edit in api/router.go
-	version = "1.2.0"
-
 	// app
 	app = kingpin.
 		New("leubot", "Provide a Web API for the PhantomX AX-12 Reactor Robot Arm.")
@@ -63,6 +60,16 @@ var (
 		Default("192.168.1.2").
 		String()
 
+	serverIP = app.
+			Flag("ip", "The IP address of the Leubot server.").
+			Default("172.0.0.1").
+			String()
+
+	serverPort = app.
+			Flag("port", "The serving port of the Leubot server.").
+			Default("6789").
+			String()
+
 	slackappenabled = app.
 			Flag("slackappenabled", "Enable Slack app for user previleges.").
 			Default("false").
@@ -76,11 +83,6 @@ var (
 			Flag("userTimeout", "The timeout duration for users in seconds.").
 			Default("900").
 			Int()
-
-	showVersion = app.
-			Flag("version", "Show the version info.").
-			Default("false").
-			Bool()
 )
 
 // Controller is the main thread for this API provider
@@ -149,7 +151,6 @@ func NewController(als *armlink.ArmLinkSerial) *Controller {
 			}
 
 			log.Printf("[CurrentRobotPose] %v", controller.CurrentRobotPose.String())
-
 			switch msg.Type {
 			case api.TypeAddUser:
 				userInfo, ok := msg.Value[0].(api.UserInfo)
@@ -716,15 +717,12 @@ func switchLight(on bool) {
 }
 
 func main() {
-	app.Version(version)
 	parse := kingpin.MustParse(app.Parse(os.Args[1:]))
 	_ = parse
 
-	if *showVersion {
-		bi, _ := debug.ReadBuildInfo()
-		fmt.Printf("%v\n", bi.Main.Version)
-		os.Exit(0)
-	}
+	//bi, _ := debug.ReadBuildInfo()
+	//app.Version(bi.Main.Version)
+	//log.Printf("Server started: %v", bi.Main.Version)
 
 	// initialize ArmLink serial interface to control the robot
 	als := armlink.NewArmLinkSerial()
@@ -734,7 +732,6 @@ func main() {
 	controller := NewController(als)
 	defer controller.Shutdown()
 
-	log.Printf("Server started")
 	router := api.NewRouter(controller.HandlerChannel)
-	log.Fatal(http.ListenAndServe(":6789", router))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("%v:%v", *serverIP, *serverPort), router))
 }

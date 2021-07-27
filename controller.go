@@ -584,7 +584,7 @@ func NewController(als *armlink.ArmLinkSerial, mt string, ver string) *Controlle
 				}
 			case api.TypePutReset:
 				// receive the robotCommand
-				robotCommand, ok := msg.Value[0].(api.RobotCommand)
+				token, ok := msg.Value[0].(string)
 				if !ok {
 					hmc <- api.HandlerMessage{
 						Type: api.TypeSomethingWentWrong,
@@ -592,7 +592,7 @@ func NewController(als *armlink.ArmLinkSerial, mt string, ver string) *Controlle
 					break
 				}
 				// check if the token is valid
-				if !controller.Validate(robotCommand.Token) {
+				if !controller.Validate(token) {
 					hmc <- api.HandlerMessage{
 						Type: api.TypeInvalidToken,
 					}

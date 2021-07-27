@@ -195,10 +195,11 @@ func putState(w http.ResponseWriter, r *http.Request) {
 		reqType = TypePutWristRotation
 	case APIBasePath + "/gripper":
 		reqType = TypePutGripper
-	case APIBasePath + "/reset":
-		reqType = TypePutReset
 	case APIBasePath + "/posture":
 		putPosture(w, r)
+		return
+	case APIBasePath + "/reset":
+		putReset(w, r)
 		return
 	default:
 		w.WriteHeader(http.StatusInternalServerError) // 500
@@ -289,6 +290,41 @@ func putPosture(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusAccepted) // 202
 	case TypeInvalidToken: // the invalid token provided
 		log.Printf("[HandlerChannel] InvalidToken: %v", posCom.Token)
+		w.WriteHeader(http.StatusUnauthorized) // 401
+	default: // something went wrong
+		w.WriteHeader(http.StatusInternalServerError) // 500
+	}
+}
+
+// putReset resets the states
+func putReset(w http.ResponseWriter, r *http.Request) {
+	// extract token from the X-API-Key header
+	token := r.Header.Get("X-API-Key")
+	if token == "" {
+		w.WriteHeader(http.StatusBadRequest) // 401
+		return
+	}
+
+	// bypass the request to HandlerChannel
+	HandlerChannel <- HandlerMessage{
+		Type:  TypePutReset,
+		Value: []interface{}{token},
+	}
+
+	// receive a message from the other end of HandlerChannel
+	msg, ok := <-HandlerChannel
+	if !ok {
+		w.WriteHeader(http.StatusInternalServerError) // 500
+		return
+	}
+
+	// respond with the result
+	switch msg.Type {
+	case TypeActionPerformed: // the requested action is performed
+		log.Println("[HandlerChannel] Posture")
+		w.WriteHeader(http.StatusAccepted) // 202
+	case TypeInvalidToken: // the invalid token provided
+		log.Printf("[HandlerChannel] InvalidToken: %v", token)
 		w.WriteHeader(http.StatusUnauthorized) // 401
 	default: // something went wrong
 		w.WriteHeader(http.StatusInternalServerError) // 500

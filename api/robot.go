@@ -128,7 +128,7 @@ func getState(w http.ResponseWriter, r *http.Request) {
 		getPosture(w, r)
 		return
 	default:
-		log.Printf("%v: %#v", r.RequestURI, http.StatusInternalServerError)
+		log.Printf("%#v", http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError) // 500
 		return
 	}
@@ -163,7 +163,7 @@ func getState(w http.ResponseWriter, r *http.Request) {
 	case TypeCurrentGripper:
 		name = "gripper"
 	default: // something went wrong
-		log.Printf("%#v: %#v", msg.Type, http.StatusInternalServerError)
+		log.Printf("%#v: %s", http.StatusInternalServerError, msg.Type)
 		w.WriteHeader(http.StatusInternalServerError) // 500
 		return
 	}
@@ -206,7 +206,7 @@ func putState(w http.ResponseWriter, r *http.Request) {
 		putReset(w, r)
 		return
 	default:
-		log.Printf("%#v: %#v", r.RequestURI, http.StatusInternalServerError)
+		log.Printf("%#v", http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError) // 500
 	}
 
@@ -215,6 +215,7 @@ func putState(w http.ResponseWriter, r *http.Request) {
 	var robotCommand RobotCommand
 	err := decoder.Decode(&robotCommand)
 	if err != nil {
+		log.Printf("%#v", http.StatusBadRequest)
 		w.WriteHeader(http.StatusBadRequest) // 400
 		return
 	}
@@ -223,7 +224,8 @@ func putState(w http.ResponseWriter, r *http.Request) {
 	if token := r.Header.Get("X-API-Key"); token != "" {
 		robotCommand.Token = token
 	} else {
-		w.WriteHeader(http.StatusBadRequest) // 401
+		log.Printf("%#v", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized) // 401
 		return
 	}
 
@@ -256,7 +258,7 @@ func putState(w http.ResponseWriter, r *http.Request) {
 		log.Println("UserNotFound")
 		w.WriteHeader(http.StatusBadRequest) // 400
 	default: // something went wrong
-		log.Printf("%#v: %#v", msg.Type, http.StatusInternalServerError)
+		log.Printf("%#v: %s", http.StatusInternalServerError, msg.Type)
 		w.WriteHeader(http.StatusInternalServerError) // 500
 	}
 }
@@ -268,6 +270,7 @@ func putPosture(w http.ResponseWriter, r *http.Request) {
 	var posCom PostureCommand
 	err := decoder.Decode(&posCom)
 	if err != nil {
+		log.Printf("%#v", http.StatusBadRequest)
 		w.WriteHeader(http.StatusBadRequest) // 400
 		return
 	}
@@ -276,7 +279,8 @@ func putPosture(w http.ResponseWriter, r *http.Request) {
 	if token := r.Header.Get("X-API-Key"); token != "" {
 		posCom.Token = token
 	} else {
-		w.WriteHeader(http.StatusBadRequest) // 401
+		log.Printf("%#v", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized) // 401
 		return
 	}
 
@@ -306,7 +310,7 @@ func putPosture(w http.ResponseWriter, r *http.Request) {
 		log.Println("UserNotFound")
 		w.WriteHeader(http.StatusBadRequest) // 400
 	default: // something went wrong
-		log.Printf("%#v: %#v", msg.Type, http.StatusInternalServerError)
+		log.Printf("%#v: %s", http.StatusInternalServerError, msg.Type)
 		w.WriteHeader(http.StatusInternalServerError) // 500
 	}
 }
@@ -330,7 +334,6 @@ func putReset(w http.ResponseWriter, r *http.Request) {
 	msg, ok := <-HandlerChannel
 	if !ok {
 		log.Printf("%#v", http.StatusInternalServerError)
-		log.Printf("%#v: %#v", msg.Type, http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError) // 500
 		return
 	}
@@ -347,7 +350,7 @@ func putReset(w http.ResponseWriter, r *http.Request) {
 		log.Println("UserNotFound")
 		w.WriteHeader(http.StatusBadRequest) // 400
 	default: // something went wrong
-		log.Printf("%#v: %#v", msg.Type, http.StatusInternalServerError)
+		log.Printf("%#v: %s", http.StatusInternalServerError, msg.Type)
 		w.WriteHeader(http.StatusInternalServerError) // 500
 	}
 }

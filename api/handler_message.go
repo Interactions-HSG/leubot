@@ -76,6 +76,46 @@ const (
 	TypeSomethingWentWrong
 )
 
+func (hmt HandlerMessageType) String() string {
+	return [...]string{
+		"TypeAddUser",
+		"TypeUserAdded",
+		"TypeUserExisted",
+		"TypeInvalidUserInfo",
+		"TypeDeleteUser",
+		"TypeUserDeleted",
+		"TypeUserNotFound",
+		"TypeGetUser",
+		"TypeCurrentUser",
+		"TypeGetBase",
+		"TypeGetShoulder",
+		"TypeGetElbow",
+		"TypeGetWristAngle",
+		"TypeGetWristRotation",
+		"TypeGetGripper",
+		"TypeGetPosture",
+		"TypeCurrentBase",
+		"TypeCurrentShoulder",
+		"TypeCurrentElbow",
+		"TypeCurrentWristAngle",
+		"TypeCurrentWristRotation",
+		"TypeCurrentGripper",
+		"TypeCurrentPosture",
+		"TypePutBase",
+		"TypePutShoulder",
+		"TypePutElbow",
+		"TypePutWristAngle",
+		"TypePutWristRotation",
+		"TypePutGripper",
+		"TypePutPosture",
+		"TypePutReset",
+		"TypeActionPerformed",
+		"TypeInvalidToken",
+		"TypeInvalidCommand",
+		"TypeSomethingWentWrong",
+	}[hmt]
+}
+
 // HandlerMessage contains the payload for the command messages
 type HandlerMessage struct {
 	Type  HandlerMessageType

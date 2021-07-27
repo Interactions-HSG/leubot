@@ -21,8 +21,8 @@ type Route struct {
 type Routes []Route
 
 var (
-	// APIBaseURL is the path to the API
-	APIBaseURL string
+	// APIBasePath is the path to the API
+	APIBasePath string
 
 	// APIHost is the hostname
 	APIHost string
@@ -38,103 +38,103 @@ var routes = Routes{
 	Route{
 		"/user",
 		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPost},
-		APIBaseURL + "/user",
+		APIBasePath + "/user",
 		UserHandler,
 	},
 	Route{
 		"/user/{token}",
 		[]string{http.MethodDelete, http.MethodOptions},
-		APIBaseURL + "/user/{token}",
+		APIBasePath + "/user/{token}",
 		UserHandler,
 	},
 	Route{
 		"GetBase",
 		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBaseURL + "/base",
+		APIBasePath + "/base",
 		GetState,
 	},
 	Route{
 		"GetShoulder",
 		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBaseURL + "/shoulder",
+		APIBasePath + "/shoulder",
 		GetState,
 	},
 	Route{
 		"GetElbow",
 		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBaseURL + "/elbow",
+		APIBasePath + "/elbow",
 		GetState,
 	},
 	Route{
 		"GetWristAngle",
 		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBaseURL + "/wrist/angle",
+		APIBasePath + "/wrist/angle",
 		GetState,
 	},
 	Route{
 		"GetWristRotation",
 		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBaseURL + "/wrist/rotation",
+		APIBasePath + "/wrist/rotation",
 		GetState,
 	},
 	Route{
 		"GetGripper",
 		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBaseURL + "/gripper",
+		APIBasePath + "/gripper",
 		GetState,
 	},
 	Route{
 		"GetPosture",
 		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBaseURL + "/posture",
+		APIBasePath + "/posture",
 		GetPosture,
 	},
 	Route{
 		"PutBase",
 		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBaseURL + "/base",
+		APIBasePath + "/base",
 		PutBase,
 	},
 	Route{
 		"PutShoulder",
 		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBaseURL + "/shoulder",
+		APIBasePath + "/shoulder",
 		PutShoulder,
 	},
 	Route{
 		"PutElbow",
 		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBaseURL + "/elbow",
+		APIBasePath + "/elbow",
 		PutElbow,
 	},
 	Route{
 		"PutWristAngle",
 		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBaseURL + "/wrist/angle",
+		APIBasePath + "/wrist/angle",
 		PutWristAngle,
 	},
 	Route{
 		"PutWristRotation",
 		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBaseURL + "/wrist/rotation",
+		APIBasePath + "/wrist/rotation",
 		PutWristRotation,
 	},
 	Route{
 		"PutGripper",
 		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBaseURL + "/gripper",
+		APIBasePath + "/gripper",
 		PutGripper,
 	},
 	Route{
 		"PutPosture",
 		[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
-		APIBaseURL + "/posture",
+		APIBasePath + "/posture",
 		PutPosture,
 	},
 	Route{
 		"PutReset",
 		[]string{http.MethodOptions, http.MethodPut},
-		APIBaseURL + "/reset",
+		APIBasePath + "/reset",
 		PutReset,
 	},
 }
@@ -156,11 +156,21 @@ func Logger(inner http.Handler, name string) http.Handler {
 	})
 }
 
+func loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Do stuff here
+		log.Println(r.RequestURI)
+		// Call the next handler, which can be another middleware in the chain, or the final handler.
+		next.ServeHTTP(w, r)
+	})
+}
+
 // NewRouter creats a new instance of Router
 func NewRouter(apiHost string, apiPath string, apiProto string, hmc chan HandlerMessage, ver string) *mux.Router {
-	APIBaseURL = fmt.Sprintf("/%s/%s", apiPath, ver)
+	APIBasePath = fmt.Sprintf("/%s/%s", apiPath, ver)
 	APIHost = apiHost
 	APIProto = apiProto
+	log.Printf("Serving at %s%s%s", APIProto, APIHost, APIBasePath)
 	HandlerChannel = hmc
 	r := mux.NewRouter().StrictSlash(true)
 	for _, route := range routes {
@@ -169,6 +179,7 @@ func NewRouter(apiHost string, apiPath string, apiProto string, hmc chan Handler
 		handler = Logger(handler, route.Name)
 		r.Methods(route.Methods...).Path(route.Pattern).Name(route.Name).Handler(handler)
 	}
+	r.Use(loggingMiddleware)
 	r.Use(mux.CORSMethodMiddleware(r))
 
 	return r

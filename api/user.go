@@ -86,7 +86,7 @@ func addUser(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Printf("[HandlerChannel] UserAdded (name, email, token) = %v, %v, %v", user.Name, user.Email, user.Token)
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.Header().Set("Location", APIProto+APIHost+APIBaseURL+"/user/"+user.Token)
+		w.Header().Set("Location", APIProto+APIHost+APIBasePath+"/user/"+user.Token)
 		w.WriteHeader(http.StatusCreated)
 	case TypeUserExisted: // there's a user in the system already
 		log.Printf("[HandlerChannel] UserExisted, not replacing with (name, email) = %v, %v", userInfo.Name, userInfo.Email)

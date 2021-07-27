@@ -156,6 +156,10 @@ func Logger(inner http.Handler, name string) http.Handler {
 	})
 }
 
+func defaultHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println(r.RequestURI)
+}
+
 func loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Do stuff here
@@ -173,6 +177,8 @@ func NewRouter(apiHost string, apiPath string, apiProto string, hmc chan Handler
 	log.Printf("Serving at %s%s%s", APIProto, APIHost, APIBasePath)
 	HandlerChannel = hmc
 	r := mux.NewRouter().StrictSlash(true)
+	// default handler
+	r.Path("/").HandlerFunc(defaultHandler)
 	for _, route := range routes {
 		var handler http.Handler
 		handler = route.HandlerFunc

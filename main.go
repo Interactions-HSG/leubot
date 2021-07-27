@@ -25,12 +25,11 @@ import (
 
 // Environmental variables
 var (
-	defaultDelta = uint8(128)
-
 	app             = kingpin.New("leubot", "Provide a Web API for the PhantomX AX-12 Reactor Robot Arm.")
 	apiHost         = app.Flag("apiHost", "The hostname for the API.").Default("api.interactions.ics.unisg.ch").String()
 	apiPath         = app.Flag("apiPath", "The name for the path.").Default("leubot").String()
 	apiProto        = app.Flag("apiProto", "The protocol for the API.").Default("https://").String()
+	defaultDelta    = app.Flag("defaultDelta", "The default value for displacement delta.").Default("128").Uint8()
 	masterToken     = app.Flag("masterToken", "The master token for debug.").Default("sometoken").String()
 	miioEnabled     = app.Flag("miioEnabled", "Enable Xiaomi yeelight device.").Default("false").Bool()
 	miiocliPath     = app.Flag("miiocliPath", "The path to miio cli.").Default("/opt/bin/miiocli").String()

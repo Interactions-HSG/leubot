@@ -24,12 +24,74 @@ type Controller struct {
 	Version           string
 }
 
+// InitRobot initialize the robot
+func (controller *Controller) InitRobot() {
+	// turn on the light
+	switchLight(true)
+	// set the robot in Joint mode and go to home
+	alp := &armlink.ArmLinkPacket{}
+	alp.SetExtended(armlink.ExtendedReset)
+	controller.ArmLinkSerial.Send(alp.Bytes())
+	// reset CurrentRobotPose
+	controller.ResetPose()
+	// sync with Leubot
+	alp = controller.CurrentRobotPose.BuildArmLinkPacket(*defaultDelta)
+	controller.ArmLinkSerial.Send(alp.Bytes())
+	log.Printf("[ArmLinkPacket] %v", alp.String())
+	// post to Slack - stop
+	postToSlack(fmt.Sprintf(`{"text":"<!here> User %v (%v) started using Leubot."}`, controller.CurrentUser.Name, controller.CurrentUser.Email))
+	// start the timer
+	if *userTimeout != 0 {
+		controller.UserTimer.Reset(time.Second * time.Duration(*userTimeout))
+		log.Printf("[UserTimer] Started for %v", controller.CurrentUser.ToUserInfo().Name)
+		go func() {
+			for {
+				select {
+				case <-controller.UserActChannel: // Upon any activity, reset the timer
+					log.Println("[UserTimer] Activity detected, resetting the timer")
+					controller.UserTimer.Reset(time.Second * time.Duration(*userTimeout))
+				case <-controller.UserTimer.C: // Inactive, logout
+					log.Printf("[UserTimer] Timeout, deleting the user %v", controller.CurrentUser.Name)
+					// reset CurrentRobotPose
+					controller.ResetPose()
+					// set the robot in sleep mode
+					alp := armlink.ArmLinkPacket{}
+					alp.SetExtended(armlink.ExtendedSleep)
+					controller.ArmLinkSerial.Send(alp.Bytes())
+					// turn off the light
+					switchLight(false)
+					// post to Slack
+					postToSlack(fmt.Sprintf(`{"text":"<!here> User %v (%v) was inactive for %v seconds, releasing Leubot."}`, controller.CurrentUser.Name, controller.CurrentUser.Email, *userTimeout))
+					// delete the current user; assign an empty User
+					controller.CurrentUser = &api.User{}
+					// exiting timer channel listener
+					return
+				case <-controller.UserTimerFinish:
+					log.Println("[UserTimer] User deleted, terminating the timer")
+					return
+				}
+			}
+		}()
+	} // End if *userTimeout != 0
+
+}
+
 // Validate checks if the given token is valid
 func (controller *Controller) Validate(token string) bool {
-	if token != controller.CurrentUser.Token && token != controller.MasterToken {
-		return false
+	if token == controller.CurrentUser.Token {
+		return true
+	} else if token == controller.MasterToken {
+		if *controller.CurrentUser == (api.User{}) {
+			// register a super user
+			controller.CurrentUser = api.NewUser(&api.UserInfo{
+				Name:  "Super User",
+				Email: "super-user@interactions.ics.unisg.ch",
+			})
+
+		}
+		return true
 	}
-	return true
+	return false
 }
 
 // ResetPose resets the RobotPose to its home position
@@ -126,54 +188,9 @@ func NewController(als *armlink.ArmLinkSerial, mt string, ver string) *Controlle
 				}
 				// register the user to the system with the new token
 				controller.CurrentUser = api.NewUser(&userInfo)
-				// turn on the light
-				switchLight(true)
-				// set the robot in Joint mode and go to home
-				alp := &armlink.ArmLinkPacket{}
-				alp.SetExtended(armlink.ExtendedReset)
-				controller.ArmLinkSerial.Send(alp.Bytes())
-				// reset CurrentRobotPose
-				controller.ResetPose()
-				// sync with Leubot
-				alp = controller.CurrentRobotPose.BuildArmLinkPacket(defaultDelta)
-				controller.ArmLinkSerial.Send(alp.Bytes())
-				log.Printf("[ArmLinkPacket] %v", alp.String())
-				// post to Slack - stop
-				postToSlack(fmt.Sprintf(`{"text":"<!here> User %v (%v) stopped using Leubot."}`, controller.CurrentUser.Name, controller.CurrentUser.Email))
-				// start the timer
-				if *userTimeout != 0 {
-					controller.UserTimer.Reset(time.Second * time.Duration(*userTimeout))
-					log.Printf("[UserTimer] Started for %v", userInfo.Name)
-					go func() {
-						for {
-							select {
-							case <-controller.UserActChannel: // Upon any activity, reset the timer
-								log.Println("[UserTimer] Activity detected, resetting the timer")
-								controller.UserTimer.Reset(time.Second * time.Duration(*userTimeout))
-							case <-controller.UserTimer.C: // Inactive, logout
-								log.Printf("[UserTimer] Timeout, deleting the user %v", controller.CurrentUser.Name)
-								// reset CurrentRobotPose
-								controller.ResetPose()
-								// set the robot in sleep mode
-								alp := armlink.ArmLinkPacket{}
-								alp.SetExtended(armlink.ExtendedSleep)
-								controller.ArmLinkSerial.Send(alp.Bytes())
-								// turn off the light
-								switchLight(false)
-								// post to Slack
-								postToSlack(fmt.Sprintf(`{"text":"<!here> User %v (%v) was inactive for %v seconds, releasing Leubot."}`, controller.CurrentUser.Name, controller.CurrentUser.Email, *userTimeout))
-								// delete the current user; assign an empty User
-								controller.CurrentUser = &api.User{}
-								// exiting timer channel listener
-								return
-							case <-controller.UserTimerFinish:
-								log.Println("[UserTimer] User deleted, terminating the timer")
-								return
-							}
-						}
-					}()
-				} // End if *userTimeout != 0
-
+				// initialize the robot
+				controller.InitRobot()
+				// respond to the hmc
 				hmc <- api.HandlerMessage{
 					Type:  api.TypeUserAdded,
 					Value: []interface{}{*controller.CurrentUser},
@@ -293,7 +310,7 @@ func NewController(als *armlink.ArmLinkSerial, mt string, ver string) *Controlle
 				// set the value to CurrentRobotPose
 				controller.CurrentRobotPose.Base = robotCommand.Value
 				// perform the move
-				alp := controller.CurrentRobotPose.BuildArmLinkPacket(defaultDelta)
+				alp := controller.CurrentRobotPose.BuildArmLinkPacket(*defaultDelta)
 				controller.ArmLinkSerial.Send(alp.Bytes())
 				log.Printf("[ArmLinkPacket] %v", alp.String())
 
@@ -338,7 +355,7 @@ func NewController(als *armlink.ArmLinkSerial, mt string, ver string) *Controlle
 				// set the value to CurrentRobotPose
 				controller.CurrentRobotPose.Shoulder = robotCommand.Value
 				// perform the move
-				alp := controller.CurrentRobotPose.BuildArmLinkPacket(defaultDelta)
+				alp := controller.CurrentRobotPose.BuildArmLinkPacket(*defaultDelta)
 				controller.ArmLinkSerial.Send(alp.Bytes())
 				log.Printf("[ArmLinkPacket] %v", alp.String())
 
@@ -383,7 +400,7 @@ func NewController(als *armlink.ArmLinkSerial, mt string, ver string) *Controlle
 				// set the value to CurrentRobotPose
 				controller.CurrentRobotPose.Elbow = robotCommand.Value
 				// perform the move
-				alp := controller.CurrentRobotPose.BuildArmLinkPacket(defaultDelta)
+				alp := controller.CurrentRobotPose.BuildArmLinkPacket(*defaultDelta)
 				controller.ArmLinkSerial.Send(alp.Bytes())
 				log.Printf("[ArmLinkPacket] %v", alp.String())
 
@@ -428,7 +445,7 @@ func NewController(als *armlink.ArmLinkSerial, mt string, ver string) *Controlle
 				// set the value to CurrentRobotPose
 				controller.CurrentRobotPose.WristAngle = robotCommand.Value
 				// perform the move
-				alp := controller.CurrentRobotPose.BuildArmLinkPacket(defaultDelta)
+				alp := controller.CurrentRobotPose.BuildArmLinkPacket(*defaultDelta)
 				controller.ArmLinkSerial.Send(alp.Bytes())
 				log.Printf("[ArmLinkPacket] %v", alp.String())
 
@@ -473,7 +490,7 @@ func NewController(als *armlink.ArmLinkSerial, mt string, ver string) *Controlle
 				// set the value to CurrentRobotPose
 				controller.CurrentRobotPose.WristRotation = robotCommand.Value
 				// perform the move
-				alp := controller.CurrentRobotPose.BuildArmLinkPacket(defaultDelta)
+				alp := controller.CurrentRobotPose.BuildArmLinkPacket(*defaultDelta)
 				controller.ArmLinkSerial.Send(alp.Bytes())
 				log.Printf("[ArmLinkPacket] %v", alp.String())
 
@@ -518,7 +535,7 @@ func NewController(als *armlink.ArmLinkSerial, mt string, ver string) *Controlle
 				// set the value to CurrentRobotPose
 				controller.CurrentRobotPose.Gripper = robotCommand.Value
 				// perform the move
-				alp := controller.CurrentRobotPose.BuildArmLinkPacket(defaultDelta)
+				alp := controller.CurrentRobotPose.BuildArmLinkPacket(*defaultDelta)
 				controller.ArmLinkSerial.Send(alp.Bytes())
 				log.Printf("[ArmLinkPacket] %v", alp.String())
 
@@ -609,7 +626,7 @@ func NewController(als *armlink.ArmLinkSerial, mt string, ver string) *Controlle
 				// reset CurrentRobotPose
 				controller.ResetPose()
 				// sync with Leubot
-				alp = controller.CurrentRobotPose.BuildArmLinkPacket(defaultDelta)
+				alp = controller.CurrentRobotPose.BuildArmLinkPacket(*defaultDelta)
 				controller.ArmLinkSerial.Send(alp.Bytes())
 				log.Printf("[ArmLinkPacket] %v", alp.String())
 

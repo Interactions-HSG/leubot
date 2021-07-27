@@ -90,10 +90,13 @@ func (controller *Controller) Validate(token string) api.HandlerMessageType {
 		if *controller.CurrentUser == (api.User{}) {
 			// register a super user
 			log.Println("Create a super user")
-			controller.CurrentUser = api.NewUser(&api.UserInfo{
+			controller.CurrentUser = &api.User{
 				Name:  "Super User",
 				Email: "root@interactions.ics.unisg.ch",
-			})
+				Token: token,
+			}
+			controller.UserTimer.Reset(time.Second * time.Duration(*userTimeout))
+
 			// initialize the robot
 			controller.InitRobot()
 			return api.TypeUserAdded

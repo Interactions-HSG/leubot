@@ -7,17 +7,20 @@ import (
 	"path"
 )
 
+// User provides the struct for the user
 type User struct {
 	Name  string
 	Email string
 	Token string
 }
 
+// UserInfo provides the JSON scheme for User
 type UserInfo struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
 }
 
+// ToUserInfo parses User to UserInfo
 func (u *User) ToUserInfo() UserInfo {
 	return UserInfo{
 		Name:  u.Name,
@@ -25,6 +28,7 @@ func (u *User) ToUserInfo() UserInfo {
 	}
 }
 
+// NewUser instantiate a user
 func NewUser(userInfo *UserInfo) *User {
 	return &User{
 		Name:  userInfo.Name,
@@ -33,6 +37,7 @@ func NewUser(userInfo *UserInfo) *User {
 	}
 }
 
+// UserHandler process the requests on the user
 func UserHandler(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
 	w.Header().Set("Access-Control-Allow-Origin", "*")

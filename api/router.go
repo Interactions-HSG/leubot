@@ -123,6 +123,12 @@ func NewRouter(apiHost string, apiPath string, apiProto string, hmc chan Handler
 			APIBasePath + "/reset",
 			RobotHandler,
 		},
+		Route{
+			"PutSleep",
+			[]string{http.MethodOptions, http.MethodPut},
+			APIBasePath + "/sleep",
+			RobotHandler,
+		},
 	}
 
 	HandlerChannel = hmc

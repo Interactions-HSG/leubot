@@ -66,6 +66,8 @@ const (
 	TypePutPosture
 	// TypePutReset is to reset Leubot
 	TypePutReset
+	// TypePutSleep is to sleep Leubot
+	TypePutSleep
 	// TypeActionPerformed says the action was performed
 	TypeActionPerformed
 	// TypeInvalidToken says something is wrong with Token
@@ -109,6 +111,7 @@ func (hmt HandlerMessageType) String() string {
 		"TypePutGripper",
 		"TypePutPosture",
 		"TypePutReset",
+		"TypePutSleep",
 		"TypeActionPerformed",
 		"TypeInvalidToken",
 		"TypeInvalidCommand",

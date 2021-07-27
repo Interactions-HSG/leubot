@@ -14,6 +14,7 @@ import (
 type Controller struct {
 	ArmLinkSerial     *armlink.ArmLinkSerial
 	CurrentRobotPose  *api.RobotPose
+	CurrentRobotState RobotState
 	CurrentUser       *api.User
 	HandlerChannel    chan api.HandlerMessage
 	LastArmLinkPacket *armlink.ArmLinkPacket
@@ -28,18 +29,23 @@ type Controller struct {
 func (controller *Controller) InitRobot() {
 	// turn on the light
 	switchLight(true)
+
 	// set the robot in Joint mode and go to home
 	alp := &armlink.ArmLinkPacket{}
 	alp.SetExtended(armlink.ExtendedReset)
 	controller.ArmLinkSerial.Send(alp.Bytes())
+
 	// reset CurrentRobotPose
 	controller.ResetPose()
+
 	// sync with Leubot
 	alp = controller.CurrentRobotPose.BuildArmLinkPacket(*defaultDelta)
 	controller.ArmLinkSerial.Send(alp.Bytes())
 	log.Printf("[ArmLinkPacket] %v", alp.String())
+
 	// post to Slack - stop
 	postToSlack(fmt.Sprintf(`{"text":"<!here> User %v (%v) started using Leubot."}`, controller.CurrentUser.Name, controller.CurrentUser.Email))
+
 	// start the timer
 	if *userTimeout != 0 {
 		controller.UserTimer.Reset(time.Second * time.Duration(*userTimeout))
@@ -54,10 +60,8 @@ func (controller *Controller) InitRobot() {
 					log.Printf("[UserTimer] Timeout, deleting the user %v", controller.CurrentUser.Name)
 					// reset CurrentRobotPose
 					controller.ResetPose()
-
 					// set the robot in sleep mode
 					controller.SleepRobot()
-
 					// post to Slack
 					postToSlack(fmt.Sprintf(`{"text":"<!here> User %v (%v) was inactive for %v seconds, releasing Leubot."}`, controller.CurrentUser.Name, controller.CurrentUser.Email, *userTimeout))
 
@@ -71,6 +75,7 @@ func (controller *Controller) InitRobot() {
 			}
 		}()
 	} // End if *userTimeout != 0
+	controller.CurrentRobotState = Ready
 }
 
 // SleepRobot sleeps the robot
@@ -80,6 +85,17 @@ func (controller *Controller) SleepRobot() {
 	controller.ArmLinkSerial.Send(alp.Bytes())
 	// turn off the light
 	switchLight(false)
+	// zero out the CurrentRobotPose
+	controller.CurrentRobotPose = &api.RobotPose{
+		Base:          0,
+		Shoulder:      0,
+		Elbow:         0,
+		WristAngle:    0,
+		WristRotation: 0,
+		Gripper:       0,
+	}
+	// enter sleeping state
+	controller.CurrentRobotState = Sleeping
 }
 
 // Validate checks if the given token is valid, if the token is master token
@@ -139,6 +155,7 @@ func NewController(als *armlink.ArmLinkSerial, mt string, ver string) *Controlle
 	controller := Controller{
 		ArmLinkSerial:     als,
 		CurrentRobotPose:  &api.RobotPose{},
+		CurrentRobotState: Offline,
 		CurrentUser:       &api.User{},
 		HandlerChannel:    hmc,
 		LastArmLinkPacket: &armlink.ArmLinkPacket{},
@@ -328,6 +345,12 @@ func NewController(als *armlink.ArmLinkSerial, mt string, ver string) *Controlle
 					controller.UserActChannel <- true
 				}
 
+				// wake up if sleeping
+				if controller.CurrentRobotState == Sleeping {
+					log.Println("Leubot is sleeping, waking up")
+					controller.InitRobot()
+				}
+
 				// set the value to CurrentRobotPose
 				controller.CurrentRobotPose.Base = roboCom.Value
 
@@ -371,6 +394,12 @@ func NewController(als *armlink.ArmLinkSerial, mt string, ver string) *Controlle
 				// ack the timer
 				if *userTimeout != 0 {
 					controller.UserActChannel <- true
+				}
+
+				// wake up if sleeping
+				if controller.CurrentRobotState == Sleeping {
+					log.Println("Leubot is sleeping, waking up")
+					controller.InitRobot()
 				}
 
 				// set the value to CurrentRobotPose
@@ -418,6 +447,12 @@ func NewController(als *armlink.ArmLinkSerial, mt string, ver string) *Controlle
 					controller.UserActChannel <- true
 				}
 
+				// wake up if sleeping
+				if controller.CurrentRobotState == Sleeping {
+					log.Println("Leubot is sleeping, waking up")
+					controller.InitRobot()
+				}
+
 				// set the value to CurrentRobotPose
 				controller.CurrentRobotPose.Elbow = roboCom.Value
 
@@ -461,6 +496,12 @@ func NewController(als *armlink.ArmLinkSerial, mt string, ver string) *Controlle
 				// ack the timer
 				if *userTimeout != 0 {
 					controller.UserActChannel <- true
+				}
+
+				// wake up if sleeping
+				if controller.CurrentRobotState == Sleeping {
+					log.Println("Leubot is sleeping, waking up")
+					controller.InitRobot()
 				}
 
 				// set the value to CurrentRobotPose
@@ -508,6 +549,12 @@ func NewController(als *armlink.ArmLinkSerial, mt string, ver string) *Controlle
 					controller.UserActChannel <- true
 				}
 
+				// wake up if sleeping
+				if controller.CurrentRobotState == Sleeping {
+					log.Println("Leubot is sleeping, waking up")
+					controller.InitRobot()
+				}
+
 				// set the value to CurrentRobotPose
 				controller.CurrentRobotPose.WristRotation = roboCom.Value
 
@@ -551,6 +598,12 @@ func NewController(als *armlink.ArmLinkSerial, mt string, ver string) *Controlle
 				// ack the timer
 				if *userTimeout != 0 {
 					controller.UserActChannel <- true
+				}
+
+				// wake up if sleeping
+				if controller.CurrentRobotState == Sleeping {
+					log.Println("Leubot is sleeping, waking up")
+					controller.InitRobot()
 				}
 
 				// set the value to CurrentRobotPose
@@ -605,6 +658,12 @@ func NewController(als *armlink.ArmLinkSerial, mt string, ver string) *Controlle
 					break
 				}
 
+				// wake up if sleeping
+				if controller.CurrentRobotState == Sleeping {
+					log.Println("Leubot is sleeping, waking up")
+					controller.InitRobot()
+				}
+
 				// set the value to CurrentRobotPose
 				controller.CurrentRobotPose.Base = posCom.Base
 				controller.CurrentRobotPose.Shoulder = posCom.Shoulder
@@ -647,6 +706,12 @@ func NewController(als *armlink.ArmLinkSerial, mt string, ver string) *Controlle
 					controller.UserActChannel <- true
 				}
 
+				// wake up if sleeping
+				if controller.CurrentRobotState == Sleeping {
+					log.Println("Leubot is sleeping, waking up")
+					controller.InitRobot()
+				}
+
 				// perform the reset
 				alp := &armlink.ArmLinkPacket{}
 				alp.SetExtended(armlink.ExtendedReset)
@@ -659,6 +724,44 @@ func NewController(als *armlink.ArmLinkSerial, mt string, ver string) *Controlle
 				alp = controller.CurrentRobotPose.BuildArmLinkPacket(*defaultDelta)
 				controller.ArmLinkSerial.Send(alp.Bytes())
 				log.Printf("[ArmLinkPacket] %v", alp.String())
+
+				// feedback
+				hmc <- api.HandlerMessage{
+					Type: api.TypeActionPerformed,
+				}
+			case api.TypePutSleep:
+				// receive the token
+				token, ok := msg.Value[0].(string)
+				if !ok {
+					hmc <- api.HandlerMessage{
+						Type: api.TypeSomethingWentWrong,
+					}
+					break
+				}
+
+				// check if the token is valid
+				userAuth := controller.Validate(token)
+				if userAuth != api.TypeUserExisted && userAuth != api.TypeUserAdded {
+					// feedback
+					hmc <- api.HandlerMessage{
+						Type: userAuth,
+					}
+					break
+				}
+
+				// ack the timer
+				if *userTimeout != 0 {
+					controller.UserActChannel <- true
+				}
+
+				// sleep if it's Ready
+				if controller.CurrentRobotState == Ready {
+					// reset CurrentRobotPose
+					controller.ResetPose()
+
+					// set the robot in sleep mode
+					controller.SleepRobot()
+				}
 
 				// feedback
 				hmc <- api.HandlerMessage{

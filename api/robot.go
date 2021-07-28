@@ -56,9 +56,9 @@ type PostureCommand struct {
 // RobotHandler process the request to /base
 func RobotHandler(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Headers", "X-API-Key")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	// respond to HEAD or OPTIONS
 	switch r.Method {

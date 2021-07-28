@@ -7,17 +7,20 @@ import (
 	"path"
 )
 
+// User provides the struct for the user
 type User struct {
 	Name  string
 	Email string
 	Token string
 }
 
+// UserInfo provides the JSON scheme for User
 type UserInfo struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
 }
 
+// ToUserInfo parses User to UserInfo
 func (u *User) ToUserInfo() UserInfo {
 	return UserInfo{
 		Name:  u.Name,
@@ -25,6 +28,7 @@ func (u *User) ToUserInfo() UserInfo {
 	}
 }
 
+// NewUser instantiate a user
 func NewUser(userInfo *UserInfo) *User {
 	return &User{
 		Name:  userInfo.Name,
@@ -33,12 +37,34 @@ func NewUser(userInfo *UserInfo) *User {
 	}
 }
 
-func AddUser(w http.ResponseWriter, r *http.Request) {
+// UserHandler process the requests on the user
+func UserHandler(w http.ResponseWriter, r *http.Request) {
 	// allow CORS here By * or specific origin
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "POST")
-	
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	// respond to HEAD or OPTIONS
+	switch r.Method {
+	case http.MethodOptions:
+		w.WriteHeader(http.StatusNoContent)
+		return
+	case http.MethodHead:
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	switch r.Method {
+	case http.MethodGet:
+		getUser(w, r)
+	case http.MethodDelete:
+		removeUser(w, r)
+	case http.MethodPost:
+		addUser(w, r)
+	}
+}
+
+func addUser(w http.ResponseWriter, r *http.Request) {
 	// parse the request body
 	decoder := json.NewDecoder(r.Body)
 	var userInfo UserInfo
@@ -68,7 +94,7 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Printf("[HandlerChannel] UserAdded (name, email, token) = %v, %v, %v", user.Name, user.Email, user.Token)
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.Header().Set("Location", APIProto+APIHost+APIBaseURL+"/user/"+user.Token)
+		w.Header().Set("Location", APIProto+APIHost+APIBasePath+"/user/"+user.Token)
 		w.WriteHeader(http.StatusCreated)
 	case TypeUserExisted: // there's a user in the system already
 		log.Printf("[HandlerChannel] UserExisted, not replacing with (name, email) = %v, %v", userInfo.Name, userInfo.Email)
@@ -82,12 +108,7 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func GetUser(w http.ResponseWriter, r *http.Request) {
-	// allow CORS here By * or specific origin
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "GET")
-	
+func getUser(w http.ResponseWriter, r *http.Request) {
 	// bypass the request to HandlerChannel
 	HandlerChannel <- HandlerMessage{
 		Type: TypeGetUser,
@@ -121,12 +142,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func RemoveUser(w http.ResponseWriter, r *http.Request) {
-	// allow CORS here By * or specific origin
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Allow-Methods", "DELETE")
-	
+func removeUser(w http.ResponseWriter, r *http.Request) {
 	// get the token from the path
 	token := path.Base(r.URL.Path)
 	HandlerChannel <- HandlerMessage{

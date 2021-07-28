@@ -66,6 +66,8 @@ const (
 	TypePutPosture
 	// TypePutReset is to reset Leubot
 	TypePutReset
+	// TypePutSleep is to sleep Leubot
+	TypePutSleep
 	// TypeActionPerformed says the action was performed
 	TypeActionPerformed
 	// TypeInvalidToken says something is wrong with Token
@@ -75,6 +77,47 @@ const (
 	// TypeSomethingWentWrong says it didn't go well
 	TypeSomethingWentWrong
 )
+
+func (hmt HandlerMessageType) String() string {
+	return [...]string{
+		"TypeAddUser",
+		"TypeUserAdded",
+		"TypeUserExisted",
+		"TypeInvalidUserInfo",
+		"TypeDeleteUser",
+		"TypeUserDeleted",
+		"TypeUserNotFound",
+		"TypeGetUser",
+		"TypeCurrentUser",
+		"TypeGetBase",
+		"TypeGetShoulder",
+		"TypeGetElbow",
+		"TypeGetWristAngle",
+		"TypeGetWristRotation",
+		"TypeGetGripper",
+		"TypeGetPosture",
+		"TypeCurrentBase",
+		"TypeCurrentShoulder",
+		"TypeCurrentElbow",
+		"TypeCurrentWristAngle",
+		"TypeCurrentWristRotation",
+		"TypeCurrentGripper",
+		"TypeCurrentPosture",
+		"TypePutBase",
+		"TypePutShoulder",
+		"TypePutElbow",
+		"TypePutWristAngle",
+		"TypePutWristRotation",
+		"TypePutGripper",
+		"TypePutPosture",
+		"TypePutReset",
+		"TypePutSleep",
+		"TypeActionPerformed",
+		"TypeInvalidToken",
+		"TypeInvalidCommand",
+		"TypeSomethingWentWrong",
+	}[hmt]
+}
 
 // HandlerMessage contains the payload for the command messages
 type HandlerMessage struct {

@@ -1,9 +1,9 @@
 package api
 
 import (
+	"fmt"
 	"log"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -12,7 +12,7 @@ import (
 // Route is a basic pattern of the rounting
 type Route struct {
 	Name        string
-	Method      string
+	Methods     []string
 	Pattern     string
 	HandlerFunc http.HandlerFunc
 }
@@ -20,132 +20,19 @@ type Route struct {
 // Routes contain the Route
 type Routes []Route
 
-// HandlerChannel is used to communicate
-// between the router and other application logic
-var HandlerChannel chan HandlerMessage
+var (
+	// APIBasePath is the path to the API
+	APIBasePath string
 
-// TODO: feed from main?
+	// APIHost is the hostname
+	APIHost string
 
-// APIProto for API access protocol
-var APIProto = "https://"
+	// APIProto for API access protocol
+	APIProto string
 
-// APIHost is the hostname
-var APIHost = "api.interactions.ics.unisg.ch"
-
-// APIBaseURL is the path to the API
-var APIBaseURL = "/leubot/v1.2"
-
-// TODO: construct after/within NewRouter()?
-var routes = Routes{
-	Route{
-		"AddUser",
-		strings.ToUpper("Post"),
-		APIBaseURL + "/user",
-		AddUser,
-	},
-	Route{
-		"GetUser",
-		strings.ToUpper("Get"),
-		APIBaseURL + "/user",
-		GetUser,
-	},
-	Route{
-		"RemoveUser",
-		strings.ToUpper("Delete"),
-		APIBaseURL + "/user/{token}",
-		RemoveUser,
-	},
-	Route{
-		"GetBase",
-		strings.ToUpper("Get"),
-		APIBaseURL + "/base",
-		GetState,
-	},
-	Route{
-		"GetShoulder",
-		strings.ToUpper("Get"),
-		APIBaseURL + "/shoulder",
-		GetState,
-	},
-	Route{
-		"GetElbow",
-		strings.ToUpper("Get"),
-		APIBaseURL + "/elbow",
-		GetState,
-	},
-	Route{
-		"GetWristAngle",
-		strings.ToUpper("Get"),
-		APIBaseURL + "/wrist/angle",
-		GetState,
-	},
-	Route{
-		"GetWristRotation",
-		strings.ToUpper("Get"),
-		APIBaseURL + "/wrist/rotation",
-		GetState,
-	},
-	Route{
-		"GetGripper",
-		strings.ToUpper("Get"),
-		APIBaseURL + "/gripper",
-		GetState,
-	},
-	Route{
-		"GetPosture",
-		strings.ToUpper("Get"),
-		APIBaseURL + "/posture",
-		GetPosture,
-	},
-	Route{
-		"PutBase",
-		strings.ToUpper("Put"),
-		APIBaseURL + "/base",
-		PutBase,
-	},
-	Route{
-		"PutShoulder",
-		strings.ToUpper("Put"),
-		APIBaseURL + "/shoulder",
-		PutShoulder,
-	},
-	Route{
-		"PutElbow",
-		strings.ToUpper("Put"),
-		APIBaseURL + "/elbow",
-		PutElbow,
-	},
-	Route{
-		"PutWristAngle",
-		strings.ToUpper("Put"),
-		APIBaseURL + "/wrist/angle",
-		PutWristAngle,
-	},
-	Route{
-		"PutWristRotation",
-		strings.ToUpper("Put"),
-		APIBaseURL + "/wrist/rotation",
-		PutWristRotation,
-	},
-	Route{
-		"PutGripper",
-		strings.ToUpper("Put"),
-		APIBaseURL + "/gripper",
-		PutGripper,
-	},
-	Route{
-		"PutPosture",
-		strings.ToUpper("Put"),
-		APIBaseURL + "/posture",
-		PutPosture,
-	},
-	Route{
-		"PutReset",
-		strings.ToUpper("Put"),
-		APIBaseURL + "/reset",
-		PutReset,
-	},
-}
+	// HandlerChannel is used to communicate between the router and other application logic
+	HandlerChannel chan HandlerMessage
+)
 
 // Logger handles the logging in the router
 func Logger(inner http.Handler, name string) http.Handler {
@@ -164,21 +51,97 @@ func Logger(inner http.Handler, name string) http.Handler {
 	})
 }
 
+func defaultHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println(r.RequestURI)
+}
+
 // NewRouter creats a new instance of Router
-func NewRouter(hmc chan HandlerMessage) *mux.Router {
+func NewRouter(apiHost string, apiPath string, apiProto string, hmc chan HandlerMessage, ver string) *mux.Router {
+	APIBasePath = fmt.Sprintf("/%s/%s", apiPath, ver)
+	APIHost = apiHost
+	APIProto = apiProto
+	log.Printf("Serving at %s%s%s", APIProto, APIHost, APIBasePath)
+
+	var routes = Routes{
+		Route{
+			"/user",
+			[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPost},
+			APIBasePath + "/user",
+			UserHandler,
+		},
+		Route{
+			"/user/{token}",
+			[]string{http.MethodDelete, http.MethodOptions},
+			APIBasePath + "/user/{token}",
+			UserHandler,
+		},
+		Route{
+			"/base",
+			[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
+			APIBasePath + "/base",
+			RobotHandler,
+		},
+		Route{
+			"/shoulder",
+			[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
+			APIBasePath + "/shoulder",
+			RobotHandler,
+		},
+		Route{
+			"/elbow",
+			[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
+			APIBasePath + "/elbow",
+			RobotHandler,
+		},
+		Route{
+			"/wrist/angle",
+			[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
+			APIBasePath + "/wrist/angle",
+			RobotHandler,
+		},
+		Route{
+			"/wrist/rotation",
+			[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
+			APIBasePath + "/wrist/rotation",
+			RobotHandler,
+		},
+		Route{
+			"/gripper",
+			[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
+			APIBasePath + "/gripper",
+			RobotHandler,
+		},
+		Route{
+			"/posture",
+			[]string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPut},
+			APIBasePath + "/posture",
+			RobotHandler,
+		},
+		Route{
+			"PutReset",
+			[]string{http.MethodOptions, http.MethodPut},
+			APIBasePath + "/reset",
+			RobotHandler,
+		},
+		Route{
+			"PutSleep",
+			[]string{http.MethodOptions, http.MethodPut},
+			APIBasePath + "/sleep",
+			RobotHandler,
+		},
+	}
+
 	HandlerChannel = hmc
-	router := mux.NewRouter().StrictSlash(true)
+	r := mux.NewRouter().StrictSlash(true)
+	// default handler
+	r.Path("/").HandlerFunc(defaultHandler)
 	for _, route := range routes {
 		var handler http.Handler
 		handler = route.HandlerFunc
 		handler = Logger(handler, route.Name)
-
-		router.
-			Methods(route.Method, "HEAD", "OPTIONS"). // add HEAD and OPTIONS to all the requests
-			Path(route.Pattern).
-			Name(route.Name).
-			Handler(handler)
+		r.Methods(route.Methods...).Path(route.Pattern).Name(route.Name).Handler(handler)
 	}
+	r.Use(mux.CORSMethodMiddleware(r))
 
-	return router
+	return r
 }

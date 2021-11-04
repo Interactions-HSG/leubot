@@ -101,7 +101,7 @@ paths:
         - ApiKeyAuth: []
       responses:
         '202':
-          description: action completed
+          description: target value accepted, robot is moving towards it
         '400':
           description: bad input parameter
         '401':
@@ -128,7 +128,7 @@ paths:
         - ApiKeyAuth: []
       responses:
         '202':
-          description: action completed
+          description: target value accepted, robot is moving towards it
         '400':
           description: bad input parameter
         '401':
@@ -155,7 +155,7 @@ paths:
         - ApiKeyAuth: []
       responses:
         '202':
-          description: action completed
+          description: target value accepted, robot is moving towards it
         '400':
           description: bad input parameter
         '401':
@@ -182,7 +182,7 @@ paths:
         - ApiKeyAuth: []
       responses:
         '202':
-          description: action completed
+          description: target value accepted, robot is actuating its gripper
         '400':
           description: bad input parameter
         '401':
@@ -208,7 +208,7 @@ paths:
         - ApiKeyAuth: []
       responses:
         '202':
-          description: action completed
+          description: action accepted, robot is resetting
         '401':
           description: invalid token provided; not authorized
 servers:

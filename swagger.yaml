@@ -8,7 +8,7 @@ info:
     Watch the live streaming of the rooms at<br/>
     - <a href="https://interactions.ics.unisg.ch/61-102/cam1/live-stream">https://interactions.ics.unisg.ch/61-102/cam1/live-stream</a>.<br/>
     - <a href="https://interactions.ics.unisg.ch/61-102/cam2/live-stream">https://interactions.ics.unisg.ch/61-102/cam2/live-stream</a>.<br/>
-  version: 1.2.2
+  version: 1.3.1
   title: Leubot API docs - University of St.Gallen (ICS-HSG)
   contact:
     email: iori.mizutani@unisg.ch
@@ -54,7 +54,7 @@ paths:
               schema:
                 type: string
                 format: url
-                example: https://api.interactions.ics.unisg.ch/leubot/v1.2/user/6dc1e80c14edf749e2ceb86d98ea1ca1
+                example: https://api.interactions.ics.unisg.ch/leubot/v1.3.0/user/6dc1e80c14edf749e2ceb86d98ea1ca1
         '400':
           description: 'invalid input, object invalid'
         '409':
@@ -101,7 +101,7 @@ paths:
         - ApiKeyAuth: []
       responses:
         '202':
-          description: action completed
+          description: target value accepted, robot is moving towards it
         '400':
           description: bad input parameter
         '401':
@@ -128,7 +128,7 @@ paths:
         - ApiKeyAuth: []
       responses:
         '202':
-          description: action completed
+          description: target value accepted, robot is moving towards it
         '400':
           description: bad input parameter
         '401':
@@ -155,7 +155,7 @@ paths:
         - ApiKeyAuth: []
       responses:
         '202':
-          description: action completed
+          description: target value accepted, robot is moving towards it
         '400':
           description: bad input parameter
         '401':
@@ -182,7 +182,7 @@ paths:
         - ApiKeyAuth: []
       responses:
         '202':
-          description: action completed
+          description: target value accepted, robot is actuating its gripper
         '400':
           description: bad input parameter
         '401':
@@ -208,12 +208,12 @@ paths:
         - ApiKeyAuth: []
       responses:
         '202':
-          description: action completed
+          description: action accepted, robot is resetting
         '401':
           description: invalid token provided; not authorized
 servers:
-  - url: 'https://api.interactions.ics.unisg.ch/leubot1/v1.2'
-  - url: 'https://api.interactions.ics.unisg.ch/leubot2/v1.2'
+  - url: 'https://api.interactions.ics.unisg.ch/leubot1/v1.3.0'
+  #- url: 'https://api.interactions.ics.unisg.ch/leubot2/v1.3.0'
 components:
   schemas:
     UserInfo:

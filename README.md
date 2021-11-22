@@ -12,7 +12,8 @@ https://www.trossenrobotics.com/p/phantomx-ax-12-reactor-robot-arm.aspx
 1. Follow the link and install the `ArmLinkSerial` firmware on the robot: https://learn.trossenrobotics.com/36-demo-code/137-interbotix-arm-link-software.html#firmware
 2. Add the user to `dialout` group so to be able to acesss the serial device.
 3. Connect the robot to your device with FTDI-USB cable.
-```
+
+```console
 % go get github.com/Interactions-HSG/leubot
 % cd `go list -f '{{.Dir}}' github.com/Interactions-HSG/leubot`
 % go install ./...
@@ -33,12 +34,6 @@ These values are taken from: https://learn.trossenrobotics.com/arbotix/arbotix-c
 | Delta              | 0           | 254         | 128     |
 | Button             | 0           | 127         | 0       |
 | Extended           | 0           | 254         | 0       |
-
-# API Spec
-See the API documentation: https://interactions.ics.unisg.ch/leubot
-
-# Setting Instruction
-TODO: overall diagram and system desgin
 
 # License
 See the `LICENSE` file

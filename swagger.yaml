@@ -8,7 +8,7 @@ info:
     Watch the live streaming of the rooms at<br/>
     - <a href="https://interactions.ics.unisg.ch/61-102/cam1/live-stream">https://interactions.ics.unisg.ch/61-102/cam1/live-stream</a>.<br/>
     - <a href="https://interactions.ics.unisg.ch/61-102/cam2/live-stream">https://interactions.ics.unisg.ch/61-102/cam2/live-stream</a>.<br/>
-  version: 1.3.1
+  version: 1.3.4
   title: Leubot API docs - University of St.Gallen (ICS-HSG)
   contact:
     email: iori.mizutani@unisg.ch

@@ -1,7 +1,7 @@
 # leubot
 A middleware provides a web API for control PhantomX AX-12 Reactor Robot Arm
 
-See https://app.swaggerhub.com/apis/iomz/leubot for the API specification.
+See the Swagger API gh-pages here: https://interactions-hsg.github.io/leubot
 
 # Supported devices
 ## PhantomX AX-12 Reactor Robot Arm

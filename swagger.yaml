@@ -54,7 +54,7 @@ paths:
               schema:
                 type: string
                 format: url
-                example: https://api.interactions.ics.unisg.ch/leubot/v1.3.0/user/6dc1e80c14edf749e2ceb86d98ea1ca1
+                example: https://api.interactions.ics.unisg.ch/leubot/v1.3.4/user/6dc1e80c14edf749e2ceb86d98ea1ca1
         '400':
           description: 'invalid input, object invalid'
         '409':
@@ -212,8 +212,8 @@ paths:
         '401':
           description: invalid token provided; not authorized
 servers:
-  - url: 'https://api.interactions.ics.unisg.ch/leubot1/v1.3.0'
-  #- url: 'https://api.interactions.ics.unisg.ch/leubot2/v1.3.0'
+  - url: 'https://api.interactions.ics.unisg.ch/leubot1/v1.3.4'
+  - url: 'https://api.interactions.ics.unisg.ch/leubot2/v1.3.4'
 components:
   schemas:
     UserInfo:

@@ -1,10 +1,13 @@
 # leubot
+
 A middleware provides a web API for control PhantomX AX-12 Reactor Robot Arm
 
 See the Swagger API gh-pages here: https://interactions-hsg.github.io/leubot
 
 # Supported devices
+
 ## PhantomX AX-12 Reactor Robot Arm
+
 https://www.trossenrobotics.com/p/phantomx-ax-12-reactor-robot-arm.aspx
 
 # Getting Started
@@ -21,6 +24,7 @@ https://www.trossenrobotics.com/p/phantomx-ax-12-reactor-robot-arm.aspx
 ```
 
 # Reactor Arm Backhoe/Joint Positioning Limits
+
 These values are taken from: https://learn.trossenrobotics.com/arbotix/arbotix-communication-controllers/31-arm-link-reference.html
 
 | Parameter          | Lower Limit | Upper Limit | Default |
@@ -35,5 +39,3 @@ These values are taken from: https://learn.trossenrobotics.com/arbotix/arbotix-c
 | Button             | 0           | 127         | 0       |
 | Extended           | 0           | 254         | 0       |
 
-# License
-See the `LICENSE` file
